@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ned Broderick — TMUA &amp; Oxbridge Tutoring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0b1220; --navy-mid: #111c30; --navy-light: #192540;
+    --gold: #c8a96e; --gold-light: #dfc08a; --gold-dim: #8a6d40;
+    --cream: #f5f0e8; --cream-dim: #b8b0a0; --white: #ffffff;
+    --border: rgba(200,169,110,0.2); --border-dim: rgba(200,169,110,0.08);
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--navy); color: var(--cream); font-family: 'Outfit', sans-serif; font-weight: 300; line-height: 1.7; overflow-x: hidden; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1.2rem 4vw; display: flex; align-items: center; justify-content: space-between; background: rgba(11,18,32,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-dim); }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 500; color: var(--gold); letter-spacing: 0.04em; text-decoration: none; }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream-dim); text-decoration: none; transition: color 0.25s; }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--navy); background: var(--gold); padding: 0.55rem 1.4rem; text-decoration: none; transition: background 0.25s; }
+  .nav-cta:hover { background: var(--gold-light); }
+  @media (max-width: 768px) { .nav-links { display: none; } }
+
+  /* HERO */
+  #hero { min-height: 100vh; display: flex; align-items: center; padding: 8rem 4vw 5rem; position: relative; overflow: hidden; }
+  .hero-grid-bg { position: absolute; inset: 0; background-image: linear-gradient(rgba(200,169,110,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(200,169,110,0.04) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+  .hero-glow { position: absolute; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(200,169,110,0.07) 0%, transparent 70%); top: 50%; right: -150px; transform: translateY(-50%); pointer-events: none; }
+  .hero-inner { max-width: 950px; position: relative; z-index: 1; animation: fadeUp 0.9s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  .hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+  .hero-eyebrow::before { content: ''; display: block; width: 40px; height: 1px; background: var(--gold); }
+  h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.2rem, 7.5vw, 5.8rem); font-weight: 300; line-height: 1.05; letter-spacing: -0.01em; color: var(--white); margin-bottom: 2rem; }
+  h1 em { font-style: italic; color: var(--gold); }
+  .hero-sub { font-size: 1.05rem; color: var(--cream-dim); max-width: 600px; margin-bottom: 3rem; font-weight: 300; line-height: 1.9; }
+  .hero-sub strong { color: var(--cream); font-weight: 500; }
+  .hero-actions { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+  .btn-primary { display: inline-block; background: var(--gold); color: var(--navy); padding: 1rem 2.2rem; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: background 0.25s, transform 0.2s; }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn-ghost { display: inline-block; border: 1px solid var(--border); color: var(--cream-dim); padding: 1rem 2.2rem; font-size: 0.82rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: border-color 0.25s, color 0.25s; }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+  .score-cards { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 1rem; margin-top: 4rem; animation: fadeUp 0.9s 0.25s ease both; opacity: 0; animation-fill-mode: both; }
+  .score-card { border: 1px solid var(--border); padding: 1.1rem 1.4rem; background: rgba(255,255,255,0.02); position: relative; flex: 1 1 160px; min-width: 140px; max-width: 220px; }
+  @media (max-width: 900px) { .score-cards { justify-content: center; } .score-card { flex: 1 1 140px; max-width: 48%; } }
+  @media (max-width: 480px) { .score-card { flex: 1 1 100%; max-width: 100%; } }
+  .score-card::before { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 100%; background: var(--gold); }
+  .score-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.3rem; }
+  .score-value { font-family: 'Cormorant Garamond', serif; font-size: 1.85rem; font-weight: 500; color: var(--gold); line-height: 1; }
+  .score-note { font-size: 0.67rem; color: var(--cream-dim); margin-top: 0.3rem; }
+
+  /* SECTIONS */
+  section { padding: 7rem 4vw; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .section-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.8rem; }
+  .section-label::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); }
+  h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 4.5vw, 3.4rem); font-weight: 300; line-height: 1.15; color: var(--white); margin-bottom: 1.5rem; }
+  h2 em { font-style: italic; color: var(--gold); }
+  .gold-rule { width: 50px; height: 1px; background: var(--gold); margin: 2rem 0; }
+
+  /* PITCH */
+  #pitch { background: var(--navy-mid); border-top: 1px solid var(--border-dim); border-bottom: 1px solid var(--border-dim); }
+  .pitch-text p { color: var(--cream-dim); font-size: 0.97rem; margin-bottom: 1.2rem; line-height: 1.9; }
+  .pitch-text p strong { color: var(--cream); font-weight: 500; }
+  .pitch-text { max-width: 780px; }
+
+  /* SERVICES */
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1px; background: var(--border-dim); border: 1px solid var(--border-dim); margin-top: 3.5rem; }
+  .service-card { background: var(--navy); padding: 2.5rem; position: relative; transition: background 0.3s; overflow: hidden; }
+  .service-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.35s ease; }
+  .service-card:hover { background: var(--navy-light); }
+  .service-card:hover::after { transform: scaleX(1); }
+  .service-icon { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1.2rem; }
+  .service-name { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; color: var(--white); margin-bottom: 1rem; line-height: 1.2; }
+  .service-desc { font-size: 0.88rem; color: var(--cream-dim); line-height: 1.9; }
+  .service-tag { display: inline-block; margin-top: 1.5rem; font-family: 'DM Mono', monospace; font-size: 0.63rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); border: 1px solid var(--border); padding: 0.3rem 0.8rem; }
+  .services-note { margin-top: 2.5rem; padding: 2rem 2.5rem; border: 1px solid var(--border-dim); background: rgba(200,169,110,0.03); }
+  .services-note p { font-size: 0.92rem; color: var(--cream-dim); line-height: 1.85; }
+  .services-note p strong { color: var(--cream); font-weight: 500; }
+
+  /* ABOUT */
+  #about { background: var(--navy-mid); border-top: 1px solid var(--border-dim); border-bottom: 1px solid var(--border-dim); }
+  .about-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+  @media (max-width: 768px) { .about-layout { grid-template-columns: 1fr; gap: 2.5rem; } }
+  .about-text p { color: var(--cream-dim); font-size: 0.97rem; line-height: 1.9; margin-bottom: 1.2rem; }
+  .about-text p strong { color: var(--cream); font-weight: 500; }
+  .credentials-list { list-style: none; }
+  .credentials-list li { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border-dim); font-size: 0.9rem; color: var(--cream-dim); }
+  .credentials-list li:first-child { border-top: 1px solid var(--border-dim); }
+  .cred-icon { color: var(--gold); font-family: 'DM Mono', monospace; font-size: 0.7rem; margin-top: 0.25rem; min-width: 20px; }
+  .cred-text strong { display: block; color: var(--cream); font-weight: 500; font-size: 0.95rem; margin-bottom: 0.15rem; }
+  .plan-steps { display: flex; flex-direction: column; gap: 0; }
+  .plan-step { display: flex; gap: 1.4rem; padding: 1.1rem 0; border-bottom: 1px solid var(--border-dim); align-items: flex-start; }
+  .plan-step:first-child { border-top: 1px solid var(--border-dim); }
+  .plan-num { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; color: var(--gold); min-width: 22px; margin-top: 0.2rem; }
+  .plan-title { font-size: 0.95rem; font-weight: 500; color: var(--cream); margin-bottom: 0.3rem; }
+  .plan-desc { font-size: 0.83rem; color: var(--cream-dim); line-height: 1.75; }
+
+  /* PRICING */
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 3.5rem; max-width: 860px; }
+  .pricing-card { border: 1px solid var(--border); padding: 2.2rem 2rem; position: relative; background: rgba(200,169,110,0.02); }
+  .pricing-card.featured { border-color: var(--gold); background: rgba(200,169,110,0.05); }
+  .pricing-card.inquiry { border-style: dashed; }
+  .pricing-badge { position: absolute; top: -1px; right: 1.5rem; background: var(--gold); color: var(--navy); font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.3rem 0.8rem; }
+  .price-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1rem; }
+  .price-amount { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 500; color: var(--white); line-height: 1; }
+  .price-amount.small { font-size: 1.7rem; }
+  .price-unit { font-size: 0.85rem; color: var(--cream-dim); font-family: 'Outfit', sans-serif; font-weight: 300; margin-top: 0.15rem; }
+  .price-detail { margin-top: 1.2rem; font-size: 0.86rem; color: var(--cream-dim); line-height: 1.75; }
+  .pricing-extras { margin-top: 2.5rem; max-width: 860px; padding: 1.8rem 2rem; border: 1px solid var(--border-dim); background: rgba(200,169,110,0.02); }
+  .pricing-extras p { font-size: 0.88rem; color: var(--cream-dim); line-height: 1.85; }
+  .pricing-extras p strong { color: var(--cream); font-weight: 500; }
+  .pricing-note { margin-top: 1.5rem; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--gold-dim); display: flex; align-items: center; gap: 0.6rem; }
+  .pricing-note::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold-dim); }
+
+  /* CONTACT */
+  #contact { text-align: center; background: var(--navy-light); border-top: 1px solid var(--border-dim); }
+  #contact h2 { margin-bottom: 1rem; }
+  .contact-sub { color: var(--cream-dim); max-width: 520px; margin: 0 auto 2.5rem; font-size: 1rem; line-height: 1.85; }
+  .contact-detail { margin: 0.5rem 0; }
+  .contact-email { display: inline-block; font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 400; color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; transition: border-color 0.25s; }
+  .contact-email:hover { border-color: var(--gold); }
+  .contact-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.5rem; }
+  .availability-banner { display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 2.5rem; padding: 0.7rem 1.5rem; border: 1px solid rgba(200,169,110,0.3); background: rgba(200,169,110,0.05); font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+  .avail-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  footer { padding: 2rem 4vw; border-top: 1px solid var(--border-dim); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--gold-dim); letter-spacing: 0.04em; }
+  .footer-note { font-size: 0.72rem; color: var(--cream-dim); opacity: 0.5; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#hero" class="nav-logo">Ned Broderick</a>
+  <ul class="nav-links">
+    <li><a href="#pitch">Why Me</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Book a Consultation</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <p class="hero-eyebrow">TMUA &amp; Oxbridge Admissions Tutoring</p>
+    <h1>The tutor who<br><em>just did it.</em></h1>
+    <p class="hero-sub">
+      Hi, I'm <strong>Ned Broderick</strong> — a passionate mathematician about to begin an undergraduate degree at the University of Oxford. I know the TMUA inside out, having recently sat it myself, and I'd love to help you do the same.
+    </p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">Book a Free Consultation</a>
+      <a href="#pitch" class="btn-ghost">Why Choose Me</a>
+    </div>
+    <div class="score-cards">
+      <div class="score-card">
+        <div class="score-label">GCSEs</div>
+        <div class="score-value">11×9</div>
+        <div class="score-note">Eleven grade 9s</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">Predicted A-Level</div>
+        <div class="score-value">5 A*s</div>
+        <div class="score-note">Maths, FM, Physics, Chem, EPQ</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">TMUA Score</div>
+        <div class="score-value">8.5</div>
+        <div class="score-note">Top percentile nationally</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">MAT Score</div>
+        <div class="score-value">77</div>
+        <div class="score-note">Oxford's former admissions test</div>
+      </div>
+      <div class="score-card">
+        <div class="score-label">Destination</div>
+        <div class="score-value">Oxford</div>
+        <div class="score-note">Mathematics, 2025 entry</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY ME -->
+<section id="pitch">
+  <div class="section-inner">
+    <div class="pitch-text reveal">
+      <p class="section-label">Why Me</p>
+      <h2>Recency is the <em>advantage.</em></h2>
+      <div class="gold-rule"></div>
+      <p>Most tutors you'll come across have either just completed a degree at Oxford or Cambridge, or have been teaching for over a decade. Both sound impressive — and for A-Level preparation, they may well be excellent choices. A-Level is structured, predictable, and largely repeatable year to year.</p>
+      <p>TMUA is a different kind of challenge entirely. <strong>It doesn't repeat itself in the same way, and it's not something you can prepare for purely through content knowledge.</strong> It requires a particular way of thinking — one that is genuinely difficult to teach without having experienced the test yourself, under real conditions.</p>
+      <p>Long-established tutors, however skilled, have not sat TMUA. They never will. I have — recently, under the same conditions you'll face — and I scored 8.5. Beyond my own experience, I've spent considerable time studying the patterns behind TMUA performance: <strong>why mathematically capable candidates underperform, how errors compound under time pressure, and why some students feel well-prepared only to find the result doesn't reflect it.</strong> A recurring issue is a mismatch between the kind of thinking A-Level rewards and what TMUA actually demands — and that gap is rarely visible until it's too late. Understanding exactly where and how things go wrong is just as central to my method as knowing what gets the marks.</p>
+      <p>I've developed a structured, step-by-step method to build the specific skills TMUA demands — not generic exam technique, but a targeted approach to the mathematical reasoning and problem-solving the test is designed to assess. That's what I bring to every session.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-inner">
+    <p class="section-label reveal">Services</p>
+    <h2 class="reveal">What I <em>offer</em></h2>
+    <div class="services-grid reveal">
+
+      <div class="service-card">
+        <div class="service-icon">01 — Specialism</div>
+        <div class="service-name">TMUA Preparation</div>
+        <p class="service-desc">Structured, targeted preparation for the Test of Mathematics for University Admission — now adopted by Oxford under new guidance as their standard admissions assessment. My preparation programme is built around the specific skills the test rewards: precise mathematical reasoning, logical deduction, and confident problem-solving under time pressure. Sessions follow the step-by-step method I developed through my own preparation, supplemented by tailor-made resources I'll provide throughout the process.</p>
+        <span class="service-tag">Oxford's Current Standard</span>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">02 — Specialism</div>
+        <div class="service-name">Oxbridge Interview Coaching</div>
+        <p class="service-desc">Oxford and Cambridge interviews are designed to probe the way you think, not simply what you know. I prepare you to approach unseen problems clearly and confidently — to articulate your reasoning under pressure, to engage constructively with deliberate challenge, and to demonstrate the genuine mathematical curiosity these institutions want to see. (The same applies to mathematics interviews at other leading universities, such as Imperial.) Each coaching cycle includes full mock interviews as standard: you receive detailed written feedback alongside structured notes on precisely where to focus your development ahead of the next session.</p>
+        <span class="service-tag">Oxford · Cambridge · Imperial &amp; Beyond</span>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">03 — Broader Support</div>
+        <div class="service-name">A-Level Mathematics</div>
+        <p class="service-desc">Alongside my admissions specialisms, I offer support across A-Level Mathematics and Further Mathematics — whether that's building solid foundations ahead of university admissions preparation, or targeted help on specific topics at any stage of the course. Predicted all A*s myself, I know this material in depth and, crucially, recently — not from a syllabus I last touched a decade ago.</p>
+        <span class="service-tag">Maths &amp; Further Maths</span>
+      </div>
+
+    </div>
+    <div class="services-note reveal">
+      <p>I offer tutoring across the full range of pre-university mathematics — from <strong>A-Level Maths and Further Maths</strong> through to <strong>university admissions testing and Oxbridge interview preparation</strong>. My particular specialisms are <strong>TMUA preparation</strong> and <strong>Oxbridge interview coaching</strong>, though I'm happy to discuss any area of support. All tutees receive tailor-made resources designed around their individual preparation needs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-layout">
+      <div class="about-text reveal">
+        <p class="section-label">About</p>
+        <h2>Fresh insight,<br><em>proven results</em></h2>
+        <div class="gold-rule"></div>
+        <p>I'm Ned Broderick — currently in Year 13 and holding an offer to read Mathematics at the University of Oxford. Predicted five A*s across Mathematics, Further Mathematics, Physics, Chemistry, and the EPQ, I've spent the past two years navigating exactly the process I now help others prepare for.</p>
+        <p>I scored <strong>8.5 in the TMUA</strong>, placing me among the top candidates nationally. I also sat the MAT — Oxford's former admissions test — achieving a score of <strong>77</strong>. Oxford has since transitioned to the TMUA under new guidance, and I know both tests in considerable depth.</p>
+        <p>Beyond admissions tests, I achieved <strong>eleven grade 9s at GCSE</strong>, including self-taught FSMQ Additional Mathematics and GCSE Statistics — which reflects the kind of enthusiasm for the subject I bring to tutoring.</p>
+        <p>I have existing experience tutoring and take a clear, patient approach to making complex ideas accessible. I'm taking on a <strong>limited number of clients this summer only</strong> — small numbers, focused work, and a genuine commitment to results.</p>
+      </div>
+      <div class="reveal">
+        <p class="section-label" style="margin-bottom: 1.8rem;">The Plan</p>
+        <div class="plan-steps">
+          <div class="plan-step">
+            <div class="plan-num">01</div>
+            <div class="plan-body">
+              <div class="plan-title">Consolidate the foundations</div>
+              <div class="plan-desc">Ensure your A-Level knowledge is genuinely secure — not just familiar. TMUA does not test advanced content, but it demands that core material is understood with real precision. We identify and close any gaps before building on top of them.</div>
+            </div>
+          </div>
+          <div class="plan-step">
+            <div class="plan-num">02</div>
+            <div class="plan-body">
+              <div class="plan-title">Develop the problem-solving toolkit</div>
+              <div class="plan-desc">TMUA rewards a specific kind of mathematical reasoning that goes well beyond standard A-Level technique. We build the skills of logical deduction, lateral thinking, and efficient problem-framing that the test is explicitly designed to assess.</div>
+            </div>
+          </div>
+          <div class="plan-step">
+            <div class="plan-num">03</div>
+            <div class="plan-body">
+              <div class="plan-title">Master the TMUA</div>
+              <div class="plan-desc">Apply the method under timed, realistic conditions. We work through the full range of question types, refine your approach to time management, and address the patterns of error that most commonly cost candidates marks — including the ones that aren't obvious until it's too late.</div>
+            </div>
+          </div>
+          <div class="plan-step">
+            <div class="plan-num">04</div>
+            <div class="plan-body">
+              <div class="plan-title">Prepare for interview</div>
+              <div class="plan-desc">Move from written test to live problem-solving. We focus on thinking out loud, responding constructively to challenge, and demonstrating the genuine mathematical curiosity that distinguishes strong interview candidates.</div>
+            </div>
+          </div>
+          <div class="plan-step">
+            <div class="plan-num">05</div>
+            <div class="plan-body">
+              <div class="plan-title">Secure the place</div>
+              <div class="plan-desc">Arrive at every stage of the application process prepared, confident, and with a precise understanding of what you're being assessed on. The whole programme is built around this outcome from the very first session.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-inner">
+    <p class="section-label reveal">Pricing</p>
+    <h2 class="reveal">Simple, <em>transparent</em> rates</h2>
+    <div class="pricing-grid reveal">
+
+      <div class="pricing-card">
+        <div class="price-label">Free Introduction</div>
+        <div class="price-amount small">30 mins</div>
+        <div class="price-unit">no charge</div>
+        <p class="price-detail">A free introductory session to meet me, discuss your goals and timeline, and understand exactly what I offer — so you can make an informed decision before committing.</p>
+      </div>
+
+      <div class="pricing-card">
+        <div class="price-label">Per Session</div>
+        <div class="price-amount">£60</div>
+        <div class="price-unit">per hour</div>
+        <p class="price-detail">Individual sessions booked as needed. Well suited to targeted preparation, specific topic work, or one-off interview practice.</p>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Best Value</div>
+        <div class="price-label">Block Booking</div>
+        <div class="price-amount">£250</div>
+        <div class="price-unit">5-hour block</div>
+        <p class="price-detail">Save £50 with a committed block of five hours. Best suited to structured TMUA preparation programmes or full interview coaching cycles.</p>
+      </div>
+
+      <div class="pricing-card inquiry">
+        <div class="price-label">Mock Interview</div>
+        <div class="price-amount small">Price on<br>request</div>
+        <div class="price-unit">&nbsp;</div>
+        <p class="price-detail">Full mock interviews with detailed written feedback. Availability is limited and priority is given to existing tutees. Get in touch to discuss.</p>
+      </div>
+
+    </div>
+    <div class="pricing-extras reveal">
+      <p><strong>Tailor-made resources included.</strong> All tutees receive custom-built preparation materials designed around their individual needs — not off-the-shelf past paper packs, but resources developed specifically for the TMUA process and your particular areas of focus.</p>
+    </div>
+    <p class="pricing-note reveal">Sessions are conducted online via video call. Scheduling is flexible around your timetable.</p>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner reveal">
+    <p class="section-label" style="justify-content: center;">Book a Consultation</p>
+    <h2>Ready to <em>get started?</em></h2>
+    <p class="contact-sub">Spaces this summer are strictly limited. If you're preparing for TMUA or Oxbridge interviews for the 2026 sitting, I'd encourage you to reach out sooner rather than later.</p>
+    <p class="contact-label">Email me directly</p>
+    <a href="/cdn-cgi/l/email-protection#325c57561c50405d5657405b51597250465b5c4657405c57461c515d5f" class="contact-email"><span class="__cf_email__" data-cfemail="88e6edeca6eafae7ecedfae1ebe3c8eafce1e6fcedfae6edfca6ebe7e5">[email&#160;protected]</span></a>
+    <br>
+    <div class="availability-banner">
+      <div class="avail-dot"></div>
+      Now accepting enquiries for the 2026 sitting — limited places remaining
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Ned Broderick — Tutoring</div>
+  <div class="footer-note">Oxbridge &amp; TMUA Coaching · Summer Limited Availability</div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries
