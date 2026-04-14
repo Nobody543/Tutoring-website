@@ -350,7 +350,7 @@
     <h2>Ready to <em>get started?</em></h2>
     <p class="contact-sub">Spaces this summer are strictly limited. If you're preparing for TMUA or Oxbridge interviews for the 2026 sitting, I'd encourage you to reach out sooner rather than later.</p>
     <p class="contact-label">Email me directly</p>
-    <a href="/cdn-cgi/l/email-protection#325c57561c50405d5657405b51597250465b5c4657405c57461c515d5f" class="contact-email"><span class="__cf_email__" data-cfemail="88e6edeca6eafae7ecedfae1ebe3c8eafce1e6fcedfae6edfca6ebe7e5">[email&#160;protected]</span></a>
+    <a href="mailto:ned.broderick@btinternet.com" class="contact-email">ned.broderick@btinternet.com</a>
     <br>
     <div class="availability-banner">
       <div class="avail-dot"></div>
@@ -364,7 +364,15 @@
   <div class="footer-note">Oxbridge &amp; TMUA Coaching · Summer Limited Availability</div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   const reveals = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
-    entries
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => io.observe(el));
+</script>
