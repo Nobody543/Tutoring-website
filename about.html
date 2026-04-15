@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who Am I &amp; Why Me — Ned Broderick</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0b1220; --navy-mid: #111c30; --navy-light: #192540;
+    --gold: #c8a96e; --gold-light: #dfc08a; --gold-dim: #8a6d40;
+    --cream: #f5f0e8; --cream-dim: #b8b0a0; --white: #ffffff;
+    --border: rgba(200,169,110,0.2); --border-dim: rgba(200,169,110,0.08);
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--navy); color: var(--cream); font-family: 'Outfit', sans-serif; font-weight: 300; line-height: 1.7; overflow-x: hidden; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1.2rem 4vw; display: flex; align-items: center; justify-content: space-between; background: rgba(11,18,32,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-dim); }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 500; color: var(--gold); letter-spacing: 0.04em; text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream-dim); text-decoration: none; transition: color 0.25s; }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a.active { color: var(--gold); }
+  .nav-cta { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--navy); background: var(--gold); padding: 0.55rem 1.4rem; text-decoration: none; transition: background 0.25s; white-space: nowrap; }
+  .nav-cta:hover { background: var(--gold-light); }
+  @media (max-width: 900px) { .nav-links { display: none; } }
+
+  /* PAGE HERO */
+  .page-hero { padding: 10rem 4vw 5rem; border-bottom: 1px solid var(--border-dim); position: relative; overflow: hidden; }
+  .hero-grid-bg { position: absolute; inset: 0; background-image: linear-gradient(rgba(200,169,110,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(200,169,110,0.03) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+  .page-hero-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+  .page-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+  .page-eyebrow::before { content: ''; display: block; width: 40px; height: 1px; background: var(--gold); }
+  h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 300; line-height: 1.08; letter-spacing: -0.01em; color: var(--white); margin-bottom: 1.5rem; }
+  h1 em { font-style: italic; color: var(--gold); }
+  .page-hero-sub { font-size: 1rem; color: var(--cream-dim); max-width: 600px; font-weight: 300; line-height: 1.9; }
+
+  /* SHARED */
+  section { padding: 6rem 4vw; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .section-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.8rem; }
+  .section-label::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); }
+  h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; line-height: 1.15; color: var(--white); margin-bottom: 1.5rem; }
+  h2 em { font-style: italic; color: var(--gold); }
+  .gold-rule { width: 50px; height: 1px; background: var(--gold); margin: 2rem 0; }
+
+  /* PITCH */
+  #pitch { background: var(--navy-mid); border-bottom: 1px solid var(--border-dim); }
+  .pitch-text { max-width: 780px; }
+  .pitch-text p { color: var(--cream-dim); font-size: 0.97rem; margin-bottom: 1.2rem; line-height: 1.9; }
+  .pitch-text p strong { color: var(--cream); font-weight: 500; }
+
+  /* ABOUT LAYOUT */
+  #about-detail { border-bottom: 1px solid var(--border-dim); }
+  .about-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+  @media (max-width: 768px) { .about-layout { grid-template-columns: 1fr; gap: 2.5rem; } }
+  .about-text p { color: var(--cream-dim); font-size: 0.97rem; line-height: 1.9; margin-bottom: 1.2rem; }
+  .about-text p strong { color: var(--cream); font-weight: 500; }
+  .credentials-list { list-style: none; }
+  .credentials-list li { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border-dim); font-size: 0.9rem; color: var(--cream-dim); }
+  .credentials-list li:first-child { border-top: 1px solid var(--border-dim); }
+  .cred-icon { color: var(--gold); font-family: 'DM Mono', monospace; font-size: 0.7rem; margin-top: 0.25rem; min-width: 20px; }
+  .cred-text strong { display: block; color: var(--cream); font-weight: 500; font-size: 0.95rem; margin-bottom: 0.15rem; }
+
+  /* PAGE NAV */
+  .page-nav-strip { padding: 3rem 4vw; background: var(--navy-mid); border-top: 1px solid var(--border-dim); border-bottom: 1px solid var(--border-dim); }
+  .page-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .page-nav-link { display: flex; align-items: center; gap: 0.8rem; padding: 1rem 1.5rem; border: 1px solid var(--border-dim); text-decoration: none; color: var(--cream-dim); font-size: 0.85rem; transition: border-color 0.25s, color 0.25s; flex: 1 1 200px; }
+  .page-nav-link:hover { border-color: var(--border); color: var(--cream); }
+  .page-nav-link .link-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-dim); display: block; margin-bottom: 0.2rem; }
+  .page-nav-link .link-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--cream); }
+  .page-nav-link .link-arrow { margin-left: auto; color: var(--gold-dim); font-size: 1rem; }
+
+  /* CONTACT */
+  #contact { text-align: center; background: var(--navy-light); border-top: 1px solid var(--border-dim); }
+  .contact-inner { max-width: 600px; margin: 0 auto; }
+  .contact-inner h2 { margin-bottom: 1rem; }
+  .contact-sub { color: var(--cream-dim); font-size: 1rem; line-height: 1.85; margin-bottom: 2.5rem; }
+  .contact-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.5rem; }
+  .contact-email { display: inline-block; font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 400; color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; transition: border-color 0.25s; }
+  .contact-email:hover { border-color: var(--gold); }
+  .btn-primary { display: inline-block; background: var(--gold); color: var(--navy); padding: 1rem 2.2rem; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: background 0.25s, transform 0.2s; margin-top: 1.5rem; }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .availability-banner { display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 2rem; padding: 0.7rem 1.5rem; border: 1px solid rgba(200,169,110,0.3); background: rgba(200,169,110,0.05); font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+  .avail-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  footer { padding: 2rem 4vw; border-top: 1px solid var(--border-dim); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--gold-dim); letter-spacing: 0.04em; }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cream-dim); text-decoration: none; opacity: 0.5; transition: opacity 0.2s, color 0.2s; }
+  .footer-links a:hover { opacity: 1; color: var(--gold); }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Ned Broderick</a>
+  <ul class="nav-links">
+    <li><a href="about.html" class="active">Who Am I</a></li>
+    <li><a href="services.html">What I Offer</a></li>
+    <li><a href="faq.html">FAQs</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Book a Consultation</a>
+</nav>
+
+<div class="page-hero">
+  <div class="hero-grid-bg"></div>
+  <div class="page-hero-inner">
+    <p class="page-eyebrow">About</p>
+    <h1>Who Am I &amp;<br><em>Why Me</em></h1>
+    <p class="page-hero-sub">My background, my qualifications, and the case for why recency matters more than longevity when it comes to TMUA tutoring.</p>
+  </div>
+</div>
+
+<section id="pitch">
+  <div class="section-inner">
+    <div class="pitch-text reveal">
+      <p class="section-label">Why Me</p>
+      <h2>Recency is the <em>advantage.</em></h2>
+      <div class="gold-rule"></div>
+      <p>Most tutors you'll come across have either just completed a degree at Oxford or Cambridge, or have been teaching for over a decade. Both sound impressive — and for A-Level preparation, they may well be excellent choices. A-Level is structured, predictable, and largely repeatable year to year.</p>
+      <p>TMUA is a different kind of challenge entirely. <strong>It doesn't repeat itself in the same way, and it's not something you can prepare for purely through content knowledge.</strong> It requires a particular way of thinking — one that is genuinely difficult to teach without having experienced the test yourself, under real conditions.</p>
+      <p>Long-established tutors, however skilled, have not sat TMUA. They never will. I have — recently, under the same conditions you'll face — and I scored 8.5. Beyond my own experience, I've spent considerable time studying the patterns behind TMUA performance: <strong>why mathematically capable candidates underperform, how errors compound under time pressure, and why some students feel well-prepared only to find the result doesn't reflect it.</strong> A recurring issue is a mismatch between the kind of thinking A-Level rewards and what TMUA actually demands — and that gap is rarely visible until it's too late. Understanding exactly where and how things go wrong is just as central to my method as knowing what gets the marks.</p>
+      <p>I've developed a structured, step-by-step method to build the specific skills TMUA demands — not generic exam technique, but a targeted approach to the mathematical reasoning and problem-solving the test is designed to assess. That's what I bring to every session.</p>
+    </div>
+  </div>
+</section>
+
+<section id="about-detail">
+  <div class="section-inner">
+    <div class="about-layout">
+      <div class="about-text reveal">
+        <p class="section-label">Background</p>
+        <h2>Fresh insight,<br><em>proven results</em></h2>
+        <div class="gold-rule"></div>
+        <p>I'm Ned Broderick — currently in Year 13 and holding an offer to read Mathematics at the University of Oxford. Predicted five A*s across Mathematics, Further Mathematics, Physics, Chemistry, and the EPQ, I've spent the past two years navigating exactly the process I now help others prepare for.</p>
+        <p>I scored <strong>8.5 in the TMUA</strong>, placing me among the top candidates nationally. I also sat the MAT — Oxford's former admissions test — achieving a score of <strong>77</strong>. Oxford has since transitioned to the TMUA under new guidance, and I know both tests in considerable depth.</p>
+        <p>Beyond admissions tests, I achieved <strong>eleven grade 9s at GCSE</strong>, including self-taught FSMQ Additional Mathematics and GCSE Statistics — which reflects the kind of enthusiasm for the subject I bring to tutoring.</p>
+        <p>I have existing experience tutoring and take a clear, patient approach to making complex ideas accessible. I'm taking on a <strong>limited number of clients this summer only</strong> — small numbers, focused work, and a genuine commitment to results.</p>
+      </div>
+      <div class="reveal">
+        <p class="section-label" style="margin-bottom: 1.8rem;">Qualifications at a Glance</p>
+        <ul class="credentials-list">
+          <li><span class="cred-icon">◆</span><span class="cred-text"><strong>11 Grade 9s at GCSE</strong>Including self-taught FSMQ Additional Maths &amp; GCSE Statistics</span></li>
+          <li><span class="cred-icon">◆</span><span class="cred-text"><strong>Predicted 5 A*s at A-Level</strong>Mathematics, Further Mathematics, Physics, Chemistry, EPQ</span></li>
+          <li><span class="cred-icon">◆</span><span class="cred-text"><strong>TMUA Score: 8.5</strong>Top percentile nationally — Oxford's current admissions standard</span></li>
+          <li><span class="cred-icon">◆</span><span class="cred-text"><strong>MAT Score: 77</strong>Oxford's former admissions test, replaced by TMUA under new guidance</span></li>
+          <li><span class="cred-icon">◆</span><span class="cred-text"><strong>Oxford Mathematics — Offer Holder</strong>Starting undergraduate degree autumn 2025</span></li>
+          <li><span class="cred-icon">◆</span><span class="cred-text"><strong>Existing Tutoring Experience</strong>Clear, patient approach to breaking down complex material effectively</span></li>
+          <li><span class="cred-icon">◆</span><span class="cred-text"><strong>Limited Summer Availability</strong>Small number of clients only — early enquiries strongly recommended</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="page-nav-strip">
+  <div class="page-nav-inner">
+    <a href="services.html" class="page-nav-link">
+      <div><span class="link-label">Next — 02</span><span class="link-title">What I Offer &amp; The Plan</span></div>
+      <span class="link-arrow">→</span>
+    </a>
+    <a href="faq.html" class="page-nav-link">
+      <div><span class="link-label">Also — 03</span><span class="link-title">Common Questions</span></div>
+      <span class="link-arrow">→</span>
+    </a>
+    <a href="#contact" class="page-nav-link">
+      <div><span class="link-label">Ready?</span><span class="link-title">Book a Free Consultation</span></div>
+      <span class="link-arrow">→</span>
+    </a>
+  </div>
+</div>
+
+<section id="contact">
+  <div class="contact-inner reveal">
+    <p class="section-label" style="justify-content: center;">Get in Touch</p>
+    <h2>Ready to <em>get started?</em></h2>
+    <p class="contact-sub">Spaces this summer are strictly limited. If you're preparing for TMUA or Oxbridge interviews for the 2026 sitting, reach out now.</p>
+    <p class="contact-label">Email me directly</p>
+    <a href="mailto:ned.broderick@btinternet.com" class="contact-email">ned.broderick@btinternet.com</a>
+    <br>
+    <div class="availability-banner"><div class="avail-dot"></div>Now accepting enquiries for the 2026 sitting — limited places remaining</div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Ned Broderick — Tutoring</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="services.html">What I Offer</a>
+    <a href="faq.html">FAQs</a>
+    <a href="#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), i * 80); io.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => io.observe(el));
+</script>
+</body>
+</html>
