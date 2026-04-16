@@ -483,34 +483,46 @@ function selectAnswer(idx,letter){
 function goTo(idx){S.current=idx;renderQ(idx);}
 
 // ── SAVE SCORE ──
-async function saveScore(correct,wrong,skipped,grade){
-  const entry={
-    name:S.name,
-    paper:'2016 Paper 1',
-    date:new Date().toISOString(),
-    raw:correct,total:QS.length,
-    grade:grade,
-    correct:correct,wrong:wrong,skipped:skipped,
-    timedOut:S.timedOut,
-    detail:QS.map((q,i)=>({q:q.id,given:S.answers[i]||null,correct:q.ans,result:S.answers[i]===undefined?'skipped':S.answers[i]===q.ans?'correct':'incorrect'}))
+async function saveScore(correct, wrong, skipped, grade) {
+  const entry = {
+    name: S.name,
+    paper: '2016 Paper 1',
+    date: new Date().toISOString(),
+    raw: correct, total: QS.length,
+    grade: grade,
+    correct: correct, wrong: wrong, skipped: skipped,
+    timedOut: S.timedOut,
+    detail: QS.map((q, i) => ({
+      q: q.id,
+      given: S.answers[i] || null,
+      correct: q.ans,
+      result: S.answers[i] === undefined ? 'skipped'
+             : S.answers[i] === q.ans ? 'correct' : 'incorrect'
+    }))
   };
-  // Always save to localStorage as local backup
-  try{
-    const existing=JSON.parse(localStorage.getItem('tmua_scores')||'[]');
+
+  // Always save to localStorage as backup
+  try {
+    const existing = JSON.parse(localStorage.getItem('tmua_scores') || '[]');
     existing.push(entry);
-    localStorage.setItem('tmua_scores',JSON.stringify(existing));
-  }catch(e){}
-  // POST to server for permanent cross-device storage
-  try{
-    const resp=await fetch('save_score.php',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(entry)
+    localStorage.setItem('tmua_scores', JSON.stringify(existing));
+  } catch(e) {}
+
+  // POST to server
+  try {
+    const resp = await fetch('save_score.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
     });
-    return resp.ok;
-  }catch(e){
-    // Server unavailable (e.g. running locally) — localStorage backup already saved
+    if (!resp.ok) {
+      console.error('Server save failed:', resp.status, await resp.text());
+      return false;   // ← was incorrectly returning true before
+    }
     return true;
+  } catch(e) {
+    console.error('Could not reach save_score.php:', e.message);
+    return false;    // ← was incorrectly returning true before
   }
 }
 
