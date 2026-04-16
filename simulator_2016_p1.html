@@ -63,6 +63,7 @@ body{background:var(--navy);color:var(--cream);font-family:'Outfit',sans-serif;f
 .header-paper{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim)}
 #header-name{font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.08em;color:var(--cream-dim)}
 .header-counter{font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.1em;color:var(--cream-dim)}
+.header-right{display:flex;align-items:center;gap:1rem}
 #timer{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:400;letter-spacing:.04em;color:var(--cream);min-width:60px;text-align:right}
 #timer.warn{color:var(--amber)}
 #timer.danger{color:var(--red);animation:tp 1s infinite}
@@ -233,7 +234,10 @@ body{background:var(--navy);color:var(--cream);font-family:'Outfit',sans-serif;f
       <span id="header-name"></span>
     </div>
     <span class="header-counter" id="q-counter">Question 1 of 20</span>
-    <span id="timer">1:15:00</span>
+    <div class="header-right">
+      <span id="timer">1:15:00</span>
+      <button class="submit-btn" id="submit-btn">Submit Paper</button>
+    </div>
   </header>
   <div id="progress-bar"><div id="progress-fill" style="width:5%"></div></div>
   <div id="q-dots-bar"></div>
@@ -248,7 +252,6 @@ body{background:var(--navy);color:var(--cream);font-family:'Outfit',sans-serif;f
     <button class="nav-btn" id="prev-btn">← Prev</button>
     <button class="flag-btn" id="flag-btn">⚑ Flag</button>
     <button class="nav-btn" id="next-btn">Next →</button>
-    <button class="submit-btn" id="submit-btn">Submit Paper</button>
   </nav>
 </div>
 
@@ -480,26 +483,39 @@ function selectAnswer(idx,letter){
 function goTo(idx){S.current=idx;renderQ(idx);}
 
 // ── SAVE SCORE ──
-function saveScore(correct,wrong,skipped,grade){
+async function saveScore(correct,wrong,skipped,grade){
+  const entry={
+    name:S.name,
+    paper:'2016 Paper 1',
+    date:new Date().toISOString(),
+    raw:correct,total:QS.length,
+    grade:grade,
+    correct:correct,wrong:wrong,skipped:skipped,
+    timedOut:S.timedOut,
+    detail:QS.map((q,i)=>({q:q.id,given:S.answers[i]||null,correct:q.ans,result:S.answers[i]===undefined?'skipped':S.answers[i]===q.ans?'correct':'incorrect'}))
+  };
+  // Always save to localStorage as local backup
   try{
     const existing=JSON.parse(localStorage.getItem('tmua_scores')||'[]');
-    existing.push({
-      name:S.name,
-      paper:'2016 Paper 1',
-      date:new Date().toISOString(),
-      raw:correct,total:QS.length,
-      grade:grade,
-      correct:correct,wrong:wrong,skipped:skipped,
-      timedOut:S.timedOut,
-      detail:QS.map((q,i)=>({q:q.id,given:S.answers[i]||null,correct:q.ans,result:S.answers[i]===undefined?'skipped':S.answers[i]===q.ans?'correct':'incorrect'}))
-    });
+    existing.push(entry);
     localStorage.setItem('tmua_scores',JSON.stringify(existing));
+  }catch(e){}
+  // POST to server for permanent cross-device storage
+  try{
+    const resp=await fetch('save_score.php',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(entry)
+    });
+    return resp.ok;
+  }catch(e){
+    // Server unavailable (e.g. running locally) — localStorage backup already saved
     return true;
-  }catch(e){return false;}
+  }
 }
 
 // ── RESULTS ──
-function showResults(){
+async function showResults(){
   document.getElementById('results-screen').classList.remove('hidden');
   let correct=0,wrong=0,skipped=0;
   QS.forEach((q,i)=>{if(S.answers[i]===undefined)skipped++;else if(S.answers[i]===q.ans)correct++;else wrong++;});
@@ -509,8 +525,11 @@ function showResults(){
   document.getElementById('score-grade').textContent=grade.toFixed(1);
   document.getElementById('score-breakdown').innerHTML=`<span style="color:var(--green)">${correct}✓</span>&nbsp;<span style="color:var(--red)">${wrong}✗</span>&nbsp;<span style="color:var(--amber)">${skipped}–</span>`;
   if(S.timedOut) document.getElementById('timed-note').textContent='Paper submitted at time';
-  const saved=saveScore(correct,wrong,skipped,grade);
-  document.getElementById('saved-notice').style.display=saved?'flex':'none';
+  const notice=document.getElementById('saved-notice');
+  notice.style.display='flex';
+  notice.textContent='Saving score…';
+  const saved=await saveScore(correct,wrong,skipped,grade);
+  notice.textContent=saved?'✓  Score recorded':'✓  Score saved locally';
   const grid=document.getElementById('rq-grid');grid.innerHTML='';
   QS.forEach((q,i)=>{
     const ok=S.answers[i]===q.ans,sk=S.answers[i]===undefined;
