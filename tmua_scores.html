@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Score Records — Private</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0b1220;--navy-mid:#111c30;--navy-light:#192540;
+  --gold:#c8a96e;--gold-light:#dfc08a;--gold-dim:#8a6d40;
+  --cream:#f5f0e8;--cream-dim:#b8b0a0;--white:#fff;
+  --border:rgba(200,169,110,.2);--border-dim:rgba(200,169,110,.08);
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+  --green-bg:rgba(34,197,94,.1);--red-bg:rgba(239,68,68,.1);--amber-bg:rgba(245,158,11,.08);
+}
+body{background:var(--navy);color:var(--cream);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.6;min-height:100vh;padding:0}
+
+/* AUTH */
+#auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.auth-box{max-width:400px;width:100%;text-align:center}
+.auth-eyebrow{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;gap:.8rem}
+.auth-eyebrow::before,.auth-eyebrow::after{content:'';display:block;width:24px;height:1px;background:var(--gold)}
+.auth-box h1{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:var(--white);margin-bottom:.3rem}
+.auth-box h1 em{font-style:italic;color:var(--gold)}
+.auth-sub{font-size:.82rem;color:var(--cream-dim);margin-bottom:2rem}
+.auth-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim);display:block;text-align:left;margin-bottom:.5rem}
+#pin-input{width:100%;background:rgba(255,255,255,.04);border:1.5px solid var(--border);color:var(--cream);font-family:'DM Mono',monospace;font-size:1.4rem;letter-spacing:.3em;padding:.75rem 1rem;text-align:center;outline:none;transition:border-color .2s;margin-bottom:.4rem}
+#pin-input:focus{border-color:var(--gold)}
+.pin-error{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.08em;color:var(--red);margin-bottom:1rem;min-height:1rem;display:block}
+.auth-btn{width:100%;background:var(--gold);color:var(--navy);border:none;padding:.85rem;font-family:'DM Mono',monospace;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.auth-btn:hover{background:var(--gold-light)}
+
+/* MAIN */
+#main-screen{display:none;padding:3rem 2rem 4rem;max-width:1200px;margin:0 auto}
+.page-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--border-dim)}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--white)}
+.page-title em{font-style:italic;color:var(--gold)}
+.header-actions{display:flex;gap:.8rem;flex-wrap:wrap}
+.action-btn{background:none;border:1px solid var(--border-dim);color:var(--cream-dim);padding:.5rem 1.1rem;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.action-btn:hover{border-color:var(--border);color:var(--cream)}
+.action-btn.danger:hover{border-color:var(--red);color:#f87171}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2.5rem}
+.stat-card{border:1px solid var(--border-dim);padding:1.3rem 1.5rem;background:rgba(200,169,110,.02)}
+.stat-card.gold{border-color:var(--gold);background:rgba(200,169,110,.05)}
+.sc-lbl{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:.5rem}
+.sc-num{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:500;color:var(--white);line-height:1}
+.sc-sub{font-size:.75rem;color:var(--cream-dim);margin-top:.3rem}
+
+/* FILTERS */
+.filters{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center}
+.filter-label{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim)}
+.filter-btn{background:none;border:1px solid var(--border-dim);color:var(--cream-dim);padding:.35rem .85rem;font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.filter-btn:hover,.filter-btn.active{border-color:var(--gold-dim);color:var(--gold)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim);padding:.7rem 1rem;text-align:left;border-bottom:1px solid var(--border-dim);cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--gold)}
+th.sort-asc::after{content:' ↑'}
+th.sort-desc::after{content:' ↓'}
+td{font-size:.85rem;color:var(--cream-dim);padding:.7rem 1rem;border-bottom:1px solid var(--border-dim);vertical-align:top}
+td strong{color:var(--cream);font-weight:500}
+tr:hover td{background:rgba(255,255,255,.02);cursor:pointer}
+
+/* GRADE COLOURS */
+.grade-high{color:#4ade80}
+.grade-mid{color:var(--gold)}
+.grade-low{color:var(--cream-dim)}
+
+/* DETAIL PANEL */
+#detail-panel{margin-top:2rem;border:1px solid var(--border);padding:2rem;background:var(--navy-mid);display:none}
+.dp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.dp-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--white)}
+.dp-close{background:none;border:none;color:var(--cream-dim);cursor:pointer;font-size:1.1rem}
+.dp-close:hover{color:var(--cream)}
+.dp-meta{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border-dim)}
+.dp-meta-item .m-lbl{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:.2rem}
+.dp-meta-item .m-val{font-size:.92rem;color:var(--cream)}
+.dp-meta-item .m-val.grade{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:500}
+.q-breakdown{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:.35rem}
+.q-pip{height:44px;border:1.5px solid var(--border-dim);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'DM Mono',monospace;font-size:.58rem;border-radius:2px}
+.q-pip.correct{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.q-pip.incorrect{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.q-pip.skipped{border-color:var(--amber);background:var(--amber-bg);color:var(--amber)}
+.no-data{font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.1em;color:var(--gold-dim);opacity:.6;padding:2rem 0;text-align:center}
+
+/* EXPORT */
+.export-btn{background:var(--gold);color:var(--navy);border:none;padding:.55rem 1.2rem;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.export-btn:hover{background:var(--gold-light)}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <p class="auth-eyebrow">Private Access</p>
+    <h1>Score <em>Records</em></h1>
+    <p class="auth-sub">Enter the access PIN to view candidate results.</p>
+    <label class="auth-label" for="pin-input">Access PIN</label>
+    <input type="password" id="pin-input" maxlength="6" placeholder="· · · · · ·" autocomplete="off">
+    <span class="pin-error" id="pin-error"></span>
+    <button class="auth-btn" id="auth-btn">Access Records</button>
+  </div>
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="main-screen">
+  <div class="page-header">
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">Private · Score Records</div>
+      <div class="page-title">Candidate <em>Results</em></div>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn" id="export-csv-btn">Export CSV</button>
+      <button class="action-btn danger" id="clear-all-btn">Clear all data</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row" id="stats-row"></div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <span class="filter-label">Filter:</span>
+    <button class="filter-btn active" data-filter="all">All papers</button>
+    <button class="filter-btn" data-filter="2016 Paper 1">2016 P1</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table id="scores-table">
+      <thead>
+        <tr>
+          <th data-col="name">Name</th>
+          <th data-col="paper">Paper</th>
+          <th data-col="date">Date &amp; Time</th>
+          <th data-col="raw">Score</th>
+          <th data-col="grade">Grade</th>
+          <th data-col="correct">✓</th>
+          <th data-col="wrong">✗</th>
+          <th data-col="skipped">—</th>
+          <th data-col="timedOut">Timed out</th>
+        </tr>
+      </thead>
+      <tbody id="scores-tbody"></tbody>
+    </table>
+  </div>
+  <div class="no-data hidden" id="no-data-msg">No score records found.</div>
+
+  <!-- DETAIL PANEL -->
+  <div id="detail-panel">
+    <div class="dp-header">
+      <div class="dp-title" id="dp-title">Detail</div>
+      <button class="dp-close" id="dp-close">✕</button>
+    </div>
+    <div class="dp-meta" id="dp-meta"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:.8rem">Question breakdown</div>
+    <div class="q-breakdown" id="dp-breakdown"></div>
+  </div>
+</div>
+
+<script>
+// ── PIN SETUP ──
+// Change this to your preferred PIN. It is checked client-side only.
+// For stronger security, move this page behind server-side auth.
+const ACCESS_PIN = '2016'; // ← change this
+
+let allScores=[], sortCol='date', sortDir=-1, activeFilter='all', selectedIdx=null;
+
+document.getElementById('auth-btn').onclick=checkPin;
+document.getElementById('pin-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPin();});
+function checkPin(){
+  const val=document.getElementById('pin-input').value.trim();
+  if(val===ACCESS_PIN){
+    document.getElementById('auth-screen').style.display='none';
+    document.getElementById('main-screen').style.display='block';
+    loadData();
+  } else {
+    document.getElementById('pin-error').textContent='Incorrect PIN.';
+    document.getElementById('pin-input').value='';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+function loadData(){
+  try{allScores=JSON.parse(localStorage.getItem('tmua_scores')||'[]');}catch(e){allScores=[];}
+  renderStats();renderTable();
+}
+
+function renderStats(){
+  const n=allScores.length;
+  const avg=n?allScores.reduce((s,r)=>s+r.grade,0)/n:0;
+  const best=n?Math.max(...allScores.map(r=>r.grade)):0;
+  const papers=[...new Set(allScores.map(r=>r.paper))].length;
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-card gold"><div class="sc-lbl">Total attempts</div><div class="sc-num">${n}</div></div>
+    <div class="stat-card"><div class="sc-lbl">Average grade</div><div class="sc-num">${n?avg.toFixed(1):'—'}</div></div>
+    <div class="stat-card"><div class="sc-lbl">Best grade</div><div class="sc-num">${n?best.toFixed(1):'—'}</div></div>
+    <div class="stat-card"><div class="sc-lbl">Papers attempted</div><div class="sc-num">${papers}</div></div>`;
+}
+
+function filteredScores(){
+  return activeFilter==='all'?allScores:allScores.filter(s=>s.paper===activeFilter);
+}
+
+function renderTable(){
+  const data=[...filteredScores()].sort((a,b)=>{
+    let va=a[sortCol],vb=b[sortCol];
+    if(typeof va==='string')va=va.toLowerCase(),vb=String(vb).toLowerCase();
+    return va<vb?-sortDir:va>vb?sortDir:0;
+  });
+  const tbody=document.getElementById('scores-tbody');
+  document.getElementById('no-data-msg').classList.toggle('hidden',data.length>0);
+  tbody.innerHTML=data.map((s,i)=>{
+    const d=new Date(s.date);
+    const dateStr=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const timeStr=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const gradeClass=s.grade>=7.5?'grade-high':s.grade>=5.5?'grade-mid':'grade-low';
+    return `<tr onclick="showDetail(${i})">
+      <td><strong>${esc(s.name||'—')}</strong></td>
+      <td>${esc(s.paper||'—')}</td>
+      <td>${dateStr}<br><span style="font-size:.75rem;opacity:.55">${timeStr}</span></td>
+      <td><strong>${s.raw}/${s.total||20}</strong></td>
+      <td class="${gradeClass}"><strong>${s.grade.toFixed(1)}</strong></td>
+      <td style="color:var(--green)">${s.correct}</td>
+      <td style="color:var(--red)">${s.wrong}</td>
+      <td style="color:var(--amber)">${s.skipped}</td>
+      <td style="font-size:.75rem;color:var(--cream-dim)">${s.timedOut?'Yes':'No'}</td>
+    </tr>`;
+  }).join('');
+  // sort indicators
+  document.querySelectorAll('th[data-col]').forEach(th=>{
+    th.className=th.dataset.col===sortCol?(sortDir===1?'sort-asc':'sort-desc'):'';
+  });
+}
+
+function showDetail(rowIdx){
+  const data=[...filteredScores()].sort((a,b)=>{
+    let va=a[sortCol],vb=b[sortCol];
+    if(typeof va==='string')va=va.toLowerCase(),vb=String(vb).toLowerCase();
+    return va<vb?-sortDir:va>vb?sortDir:0;
+  });
+  const s=data[rowIdx];
+  if(!s)return;
+  const d=new Date(s.date);
+  document.getElementById('dp-title').textContent=`${s.name||'Candidate'} — ${s.paper}`;
+  document.getElementById('dp-meta').innerHTML=`
+    <div class="dp-meta-item"><div class="m-lbl">Name</div><div class="m-val">${esc(s.name||'—')}</div></div>
+    <div class="dp-meta-item"><div class="m-lbl">Date</div><div class="m-val">${d.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})} at ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div></div>
+    <div class="dp-meta-item"><div class="m-lbl">Raw score</div><div class="m-val">${s.raw} / ${s.total||20}</div></div>
+    <div class="dp-meta-item"><div class="m-lbl">Grade</div><div class="m-val grade ${s.grade>=7.5?'grade-high':s.grade>=5.5?'grade-mid':'grade-low'}">${s.grade.toFixed(1)}</div></div>
+    <div class="dp-meta-item"><div class="m-lbl">Timed out</div><div class="m-val">${s.timedOut?'Yes':'No'}</div></div>`;
+  if(s.detail&&s.detail.length){
+    document.getElementById('dp-breakdown').innerHTML=s.detail.map(q=>`
+      <div class="q-pip ${q.result}">
+        <span>Q${q.q}</span>
+        <span style="font-size:.5rem">${q.result==='correct'?'✓':q.result==='incorrect'?'✗':'—'}</span>
+      </div>`).join('');
+  } else {
+    document.getElementById('dp-breakdown').innerHTML='<p style="font-size:.82rem;color:var(--cream-dim)">No per-question detail available.</p>';
+  }
+  const panel=document.getElementById('detail-panel');
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+document.getElementById('dp-close').onclick=()=>{document.getElementById('detail-panel').style.display='none';};
+
+// Sort
+document.querySelectorAll('th[data-col]').forEach(th=>{
+  th.onclick=()=>{
+    if(sortCol===th.dataset.col)sortDir*=-1;
+    else{sortCol=th.dataset.col;sortDir=1;}
+    renderTable();
+  };
+});
+
+// Filter
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter=btn.dataset.filter;
+    renderTable();
+  };
+});
+
+// Export CSV
+document.getElementById('export-csv-btn').onclick=()=>{
+  const data=filteredScores();
+  if(!data.length){alert('No records to export.');return;}
+  const header=['Name','Paper','Date','Time','Raw Score','Total','Grade','Correct','Wrong','Skipped','Timed Out','Incorrect Questions','Skipped Questions'];
+  const rows=data.map(s=>{
+    const d=new Date(s.date);
+    const wrongQs=s.detail?s.detail.filter(q=>q.result==='incorrect').map(q=>`Q${q.q}`).join(' | '):'';
+    const skipQs=s.detail?s.detail.filter(q=>q.result==='skipped').map(q=>`Q${q.q}`).join(' | '):'';
+    return [s.name||'',s.paper||'',d.toLocaleDateString('en-GB'),d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),s.raw,s.total||20,s.grade.toFixed(1),s.correct,s.wrong,s.skipped,s.timedOut?'Yes':'No',wrongQs,skipQs].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');
+  });
+  const csv=[header.join(','),...rows].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`tmua_scores_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+};
+
+// Clear
+document.getElementById('clear-all-btn').onclick=()=>{
+  if(confirm('Permanently delete ALL score records? This cannot be undone.')){
+    localStorage.removeItem('tmua_scores');
+    allScores=[];
+    document.getElementById('detail-panel').style.display='none';
+    renderStats();renderTable();
+  }
+};
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+</body>
+</html>
