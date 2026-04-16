@@ -225,13 +225,7 @@ function loadHistory(){
   wrap.innerHTML=`<table class="score-table">
     <thead><tr><th>Name</th><th>Paper</th><th>Date</th><th>Score</th><th>Grade</th><th>Incorrect</th><th>Skipped</th></tr></thead>
     <tbody>${rows}</tbody>
-  </table>
-  <button class="clear-btn" id="clear-btn">Clear history</button>`;
-  document.getElementById('clear-btn').onclick=()=>{
-    if(confirm('Clear all saved score history? This cannot be undone.')){
-      localStorage.removeItem('tmua_scores');loadHistory();
-    }
-  };
+  </table>`;
 }
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 loadHistory();
