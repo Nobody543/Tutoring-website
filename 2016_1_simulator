@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMUA Simulator — 2016 Paper 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0b1220;--navy-mid:#111c30;--navy-light:#192540;
+  --gold:#c8a96e;--gold-light:#dfc08a;--gold-dim:#8a6d40;
+  --cream:#f5f0e8;--cream-dim:#b8b0a0;--white:#fff;
+  --border:rgba(200,169,110,.2);--border-dim:rgba(200,169,110,.08);
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+  --green-bg:rgba(34,197,94,.12);--red-bg:rgba(239,68,68,.12);--amber-bg:rgba(245,158,11,.1);
+}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--cream);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.6;min-height:100vh;overflow-x:hidden}
+.hidden{display:none!important}
+
+/* ── START SCREEN ── */
+#start-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden}
+.start-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(200,169,110,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(200,169,110,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+.start-inner{max-width:660px;width:100%;position:relative;z-index:1;text-align:center}
+.start-eyebrow{font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;gap:1rem}
+.start-eyebrow::before,.start-eyebrow::after{content:'';display:block;width:30px;height:1px;background:var(--gold)}
+.start-inner h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.5rem,6vw,4.5rem);font-weight:300;line-height:1.05;color:var(--white);margin-bottom:.4rem}
+.start-inner h1 em{font-style:italic;color:var(--gold)}
+.start-sub{font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:2rem}
+.start-stats{display:flex;gap:1px;background:var(--border-dim);border:1px solid var(--border-dim);margin-bottom:2rem}
+.start-stat{flex:1;background:var(--navy);padding:1.1rem 1rem;text-align:center}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;color:var(--gold);line-height:1}
+.stat-lbl{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim);margin-top:.3rem}
+.start-rules{border:1px solid var(--border-dim);padding:1.8rem 2rem;text-align:left;margin-bottom:2rem;background:rgba(255,255,255,.02)}
+.start-rules p{font-size:.9rem;color:var(--cream-dim);line-height:1.85;margin-bottom:.7rem}
+.start-rules p:last-child{margin-bottom:0}
+.start-rules strong{color:var(--cream);font-weight:500}
+/* name field */
+.name-wrap{margin-bottom:2rem;text-align:left}
+.name-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim);display:block;margin-bottom:.6rem}
+#candidate-name{width:100%;background:rgba(255,255,255,.04);border:1.5px solid var(--border);color:var(--cream);font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:400;padding:.75rem 1rem;outline:none;transition:border-color .2s}
+#candidate-name::placeholder{color:var(--cream-dim);opacity:.5}
+#candidate-name:focus{border-color:var(--gold)}
+.name-error{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.08em;color:var(--red);margin-top:.5rem;display:none}
+.btn-start{display:inline-block;background:var(--gold);color:var(--navy);padding:1rem 3rem;font-size:.85rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;border:none;cursor:pointer;transition:background .25s,transform .2s}
+.btn-start:hover{background:var(--gold-light);transform:translateY(-1px)}
+
+/* ── 10-MIN WARNING OVERLAY ── */
+#warn-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.8);backdrop-filter:blur(8px)}
+#warn-box{max-width:420px;width:90%;background:var(--navy-mid);border:1px solid rgba(245,158,11,.4);padding:2.5rem;text-align:center}
+.warn-icon{font-size:2rem;margin-bottom:1rem;color:var(--amber)}
+.warn-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--white);margin-bottom:.6rem}
+.warn-sub{font-size:.9rem;color:var(--cream-dim);line-height:1.8;margin-bottom:1.5rem}
+.warn-dismiss{background:var(--amber);color:var(--navy);border:none;padding:.7rem 2rem;font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:opacity .2s}
+.warn-dismiss:hover{opacity:.85}
+
+/* ── EXAM HEADER ── */
+#exam-header{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;background:rgba(11,18,32,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-dim)}
+.header-left{display:flex;align-items:center;gap:1.2rem}
+.header-paper{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim)}
+#header-name{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.08em;color:var(--cream-dim)}
+.header-counter{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.1em;color:var(--cream-dim)}
+#timer{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:400;letter-spacing:.05em;color:var(--cream);min-width:70px;text-align:right}
+#timer.warn{color:var(--amber)}
+#timer.danger{color:var(--red);animation:timerpulse 1s infinite}
+@keyframes timerpulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ── PROGRESS + DOTS ── */
+#progress-bar{position:fixed;top:60px;left:0;right:0;height:3px;background:var(--border-dim);z-index:99}
+#progress-fill{height:100%;background:var(--gold);transition:width .3s ease;width:5%}
+#q-dots-bar{position:fixed;top:63px;left:0;right:0;z-index:98;display:flex;justify-content:center;flex-wrap:wrap;align-items:center;gap:3px;padding:7px 1rem;background:rgba(11,18,32,.9)}
+.q-dot{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.52rem;color:var(--cream-dim);cursor:pointer;transition:all .2s}
+.q-dot:hover{border-color:var(--gold);color:var(--gold)}
+.q-dot.answered{background:rgba(200,169,110,.14);border-color:var(--gold-dim);color:var(--gold)}
+.q-dot.current{border-color:var(--gold);color:var(--gold);background:rgba(200,169,110,.22)}
+.q-dot.flagged{border-color:var(--amber);background:rgba(245,158,11,.12)}
+
+/* ── QUESTION CARD ── */
+#exam-main{padding:126px 1.5rem 100px;max-width:900px;margin:0 auto}
+#q-card{border:1px solid var(--border-dim);background:var(--navy-mid);padding:2rem 2.5rem;margin-bottom:1.5rem}
+.q-badge{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:1rem;display:flex;align-items:center;gap:.8rem}
+.q-badge::before{content:'';display:block;width:18px;height:1px;background:var(--gold-dim)}
+#q-text{font-size:.97rem;color:var(--cream);line-height:1.9}
+#q-text p{margin-bottom:.8rem}
+#q-text p:last-child{margin-bottom:0}
+#options-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+@media(max-width:600px){#options-grid{grid-template-columns:1fr}}
+.opt-btn{display:flex;align-items:flex-start;gap:.9rem;padding:.85rem 1.1rem;border:1.5px solid var(--border-dim);background:rgba(255,255,255,.015);cursor:pointer;transition:all .2s;text-align:left;width:100%;color:var(--cream)}
+.opt-btn:hover{border-color:var(--border);background:rgba(255,255,255,.04)}
+.opt-btn.selected{border-color:var(--gold);background:rgba(200,169,110,.09)}
+.opt-letter{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;color:var(--gold-dim);min-width:18px;margin-top:.1rem;flex-shrink:0}
+.opt-btn.selected .opt-letter{color:var(--gold)}
+.opt-text{font-size:.88rem;line-height:1.6}
+
+/* ── EXAM NAV BAR ── */
+#exam-nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:rgba(11,18,32,.96);backdrop-filter:blur(12px);border-top:1px solid var(--border-dim);display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:0 1.5rem;z-index:100}
+.nav-btn{background:none;border:1px solid var(--border);color:var(--cream-dim);padding:.5rem 1.1rem;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.nav-btn:hover:not(:disabled){border-color:var(--gold-dim);color:var(--cream)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.flag-btn{background:none;border:1px solid var(--border-dim);color:var(--cream-dim);padding:.5rem .95rem;font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.flag-btn.flagged{border-color:var(--amber);color:var(--amber)}
+.submit-btn{background:var(--gold);color:var(--navy);border:none;padding:.5rem 1.4rem;font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .25s}
+.submit-btn:hover{background:var(--gold-light)}
+
+/* ── RESULTS ── */
+#results-screen{min-height:100vh;padding:4rem 1.5rem 3rem;overflow-y:auto}
+.results-wrap{max-width:900px;margin:0 auto}
+.results-eyebrow{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem;display:flex;align-items:center;gap:.8rem}
+.results-eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--gold)}
+.results-wrap h2{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:300;color:var(--white);margin-bottom:2.5rem}
+.results-wrap h2 em{font-style:italic;color:var(--gold)}
+.score-panel{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;margin-bottom:2.5rem}
+@media(max-width:700px){.score-panel{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.score-panel{grid-template-columns:1fr}}
+.score-card{border:1px solid var(--border);padding:1.8rem 1.5rem;background:rgba(200,169,110,.02)}
+.score-card.feat{border-color:var(--gold);background:rgba(200,169,110,.06)}
+.sc-label{font-family:'DM Mono',monospace;font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:.8rem}
+.sc-val{font-family:'Cormorant Garamond',serif;font-size:3.2rem;font-weight:500;color:var(--white);line-height:1}
+.sc-sub{font-size:.8rem;color:var(--cream-dim);margin-top:.4rem}
+.perf-tag{display:inline-block;margin-top:.8rem;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.25rem .7rem}
+.perf-excellent{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+.perf-good{background:rgba(200,169,110,.12);color:var(--gold);border:1px solid var(--border)}
+.perf-avg{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.perf-below{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.section-label-sm{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.section-label-sm::before{content:'';display:block;width:18px;height:1px;background:var(--gold-dim)}
+.rq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:.45rem;margin-bottom:2rem}
+.rq-btn{height:52px;border:1.5px solid var(--border-dim);background:rgba(255,255,255,.02);font-family:'DM Mono',monospace;font-size:.7rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all .2s;color:var(--cream-dim)}
+.rq-btn:hover{border-color:var(--border)}
+.rq-btn .rq-num{font-size:.68rem}
+.rq-btn .rq-mark{font-size:.6rem}
+.rq-btn.correct{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.rq-btn.incorrect{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.rq-btn.skipped{border-color:var(--amber);background:var(--amber-bg);color:var(--amber)}
+.review-hint{font-family:'DM Mono',monospace;font-size:.67rem;letter-spacing:.1em;color:var(--gold-dim);text-align:center;margin-bottom:2rem;opacity:.7}
+/* email report btn */
+.email-row{display:flex;align-items:center;gap:1rem;margin-bottom:2.5rem;flex-wrap:wrap}
+.email-report-btn{display:inline-flex;align-items:center;gap:.6rem;background:var(--gold);color:var(--navy);border:none;padding:.75rem 1.6rem;font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:background .25s}
+.email-report-btn:hover{background:var(--gold-light)}
+.email-hint{font-size:.8rem;color:var(--cream-dim);font-style:italic}
+
+/* ── REVIEW MODAL ── */
+#review-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:1rem}
+#review-backdrop{position:absolute;inset:0;background:rgba(11,18,32,.85)}
+#review-panel{position:relative;z-index:1;background:var(--navy-mid);border:1px solid var(--border);width:100%;max-width:780px;max-height:90vh;overflow-y:auto;margin-top:2rem}
+.rev-header{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.5rem;border-bottom:1px solid var(--border-dim);position:sticky;top:0;background:var(--navy-mid);z-index:1}
+.rev-header-left{display:flex;align-items:center;gap:1rem}
+.rev-q-badge{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.rev-nav-btns{display:flex;gap:.4rem}
+.rev-nav-btn{background:none;border:1px solid var(--border-dim);color:var(--cream-dim);padding:.3rem .7rem;font-family:'DM Mono',monospace;font-size:.63rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.rev-nav-btn:hover:not(:disabled){border-color:var(--border);color:var(--cream)}
+.rev-nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.close-btn{background:none;border:none;color:var(--cream-dim);font-size:1.2rem;cursor:pointer;padding:.3rem .5rem;line-height:1}
+.close-btn:hover{color:var(--cream)}
+.rev-body{padding:1.5rem}
+.rev-q-text{font-size:.93rem;color:var(--cream);line-height:1.9;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border-dim)}
+.rev-status{font-size:.83rem;margin-bottom:1rem;padding:.5rem .8rem;border-left:3px solid}
+.rev-status.correct{color:#4ade80;border-color:var(--green);background:var(--green-bg)}
+.rev-status.incorrect{color:#f87171;border-color:var(--red);background:var(--red-bg)}
+.rev-status.skipped{color:var(--amber);border-color:var(--amber);background:var(--amber-bg)}
+.rev-options{display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.5rem}
+.rev-opt{display:flex;align-items:flex-start;gap:.8rem;padding:.7rem 1rem;border:1.5px solid var(--border-dim);background:transparent}
+.rev-opt.user-correct{border-color:var(--green);background:var(--green-bg)}
+.rev-opt.user-wrong{border-color:var(--red);background:var(--red-bg)}
+.rev-opt.correct-hi{border-color:var(--green);background:var(--green-bg)}
+.rev-opt-letter{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.1em;min-width:18px;flex-shrink:0;margin-top:.1rem;color:var(--cream-dim)}
+.rev-opt.user-correct .rev-opt-letter{color:var(--green)}
+.rev-opt.user-wrong .rev-opt-letter{color:var(--red)}
+.rev-opt.correct-hi .rev-opt-letter{color:var(--green)}
+.rev-opt-text{font-size:.86rem;line-height:1.6;color:var(--cream-dim);flex:1}
+.rev-opt.user-correct .rev-opt-text,.rev-opt.user-wrong .rev-opt-text,.rev-opt.correct-hi .rev-opt-text{color:var(--cream)}
+.rev-tag{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .45rem;margin-left:.4rem;flex-shrink:0;vertical-align:middle}
+.tag-correct{background:rgba(34,197,94,.18);color:#4ade80}
+.tag-wrong{background:rgba(239,68,68,.18);color:#f87171}
+.rev-solution{padding:1.2rem 1.4rem;border:1px solid var(--border-dim);background:rgba(200,169,110,.025)}
+.rev-sol-label{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
+.rev-sol-label::before{content:'';display:block;width:14px;height:1px;background:var(--gold-dim)}
+.rev-sol-text{font-size:.87rem;color:var(--cream-dim);line-height:1.9}
+.rev-sol-text p{margin-bottom:.6rem}
+.rev-sol-text p:last-child{margin-bottom:0}
+.rev-sol-text strong{color:var(--cream);font-weight:500}
+.rev-sol-text .note{font-size:.8rem;color:var(--amber);font-style:italic;margin-top:.5rem}
+
+@media(max-width:480px){
+  #exam-main{padding:126px .8rem 100px}
+  #q-card{padding:1.2rem 1rem}
+  #exam-nav{padding:0 .8rem;gap:.4rem}
+  .nav-btn,.flag-btn,.submit-btn{padding:.42rem .7rem;font-size:.6rem}
+}
+.katex{font-size:1em}
+.opt-text .katex,.rev-opt-text .katex{font-size:.94em}
+</style>
+</head>
+<body>
+
+<!-- ════════════ START SCREEN ════════════ -->
+<div id="start-screen">
+  <div class="start-grid-bg"></div>
+  <div class="start-inner">
+    <p class="start-eyebrow">TMUA Simulator</p>
+    <h1>2016 <em>Paper 1</em></h1>
+    <p class="start-sub">Practice paper · Cambridge Assessment</p>
+    <div class="start-stats">
+      <div class="start-stat"><div class="stat-val">20</div><div class="stat-lbl">Questions</div></div>
+      <div class="start-stat"><div class="stat-val">75</div><div class="stat-lbl">Minutes</div></div>
+      <div class="start-stat"><div class="stat-val">1–9</div><div class="stat-lbl">Score scale</div></div>
+    </div>
+    <div class="start-rules">
+      <p><strong>This is a timed simulation of TMUA Paper 1 (2016).</strong> Each question has exactly one correct answer. No penalties apply for incorrect responses — attempt every question.</p>
+      <p>The 75-minute clock begins when you click Begin. The paper will be submitted automatically when time expires. No calculators are permitted.</p>
+      <p>After submitting, you will receive a grade based on the official TMUA conversion table, and can review every question with full worked solutions. A score report will be sent by email.</p>
+    </div>
+    <div class="name-wrap">
+      <label class="name-label" for="candidate-name">Your full name</label>
+      <input type="text" id="candidate-name" placeholder="e.g. Jane Smith" maxlength="60" autocomplete="off">
+      <div class="name-error" id="name-error">Please enter your name before starting.</div>
+    </div>
+    <button class="btn-start" id="begin-btn">Begin Paper</button>
+  </div>
+</div>
+
+<!-- ════════════ 10-MIN WARNING ════════════ -->
+<div id="warn-overlay" class="hidden">
+  <div id="warn-box">
+    <div class="warn-icon">⏳</div>
+    <div class="warn-title">10 minutes remaining</div>
+    <p class="warn-sub">You have <strong>10 minutes</strong> left on this paper. Ensure all questions you wish to answer have been selected — the paper will submit automatically when the timer reaches zero.</p>
+    <button class="warn-dismiss" id="warn-dismiss">Continue →</button>
+  </div>
+</div>
+
+<!-- ════════════ EXAM SCREEN ════════════ -->
+<div id="exam-screen" class="hidden">
+  <header id="exam-header">
+    <div class="header-left">
+      <span class="header-paper">TMUA 2016 · Paper 1</span>
+      <span id="header-name"></span>
+    </div>
+    <span class="header-counter" id="q-counter">Question 1 of 20</span>
+    <span id="timer">1:15:00</span>
+  </header>
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="q-dots-bar"></div>
+  <main id="exam-main">
+    <div id="q-card">
+      <div class="q-badge" id="q-badge">Question 01</div>
+      <div id="q-text"></div>
+    </div>
+    <div id="options-grid"></div>
+  </main>
+  <nav id="exam-nav">
+    <button class="nav-btn" id="prev-btn">← Prev</button>
+    <button class="flag-btn" id="flag-btn">⚑ Flag</button>
+    <button class="nav-btn" id="next-btn">Next →</button>
+    <button class="submit-btn" id="submit-btn">Submit Paper</button>
+  </nav>
+</div>
+
+<!-- ════════════ RESULTS SCREEN ════════════ -->
+<div id="results-screen" class="hidden">
+  <div class="results-wrap">
+    <p class="results-eyebrow">Paper Completed</p>
+    <h2 id="results-heading">Your <em>Results</em></h2>
+    <div class="score-panel">
+      <div class="score-card feat">
+        <div class="sc-label">Raw Score</div>
+        <div class="sc-val" id="score-raw">—</div>
+        <div class="sc-sub">out of 20 questions</div>
+        <div id="perf-tag" class="perf-tag"></div>
+      </div>
+      <div class="score-card">
+        <div class="sc-label">TMUA Grade</div>
+        <div class="sc-val" id="score-grade">—</div>
+        <div class="sc-sub">official scale 1.0–9.0</div>
+      </div>
+      <div class="score-card">
+        <div class="sc-label">Correct / Wrong / Skipped</div>
+        <div class="sc-val" id="score-breakdown" style="font-size:1.5rem;line-height:1.4">—</div>
+        <div class="sc-sub">question breakdown</div>
+      </div>
+    </div>
+    <div class="email-row">
+      <a id="email-report-link" href="#" class="email-report-btn">✉ Email Score Report</a>
+      <span class="email-hint">Opens your email client with a pre-filled report to ned.broderick@btinternet.com</span>
+    </div>
+    <p class="section-label-sm">Review Questions — click any to see your answer &amp; worked solution</p>
+    <div class="rq-grid" id="rq-grid"></div>
+    <p class="review-hint">Green = correct &nbsp;·&nbsp; Red = incorrect &nbsp;·&nbsp; Amber = skipped</p>
+  </div>
+</div>
+
+<!-- ════════════ REVIEW MODAL ════════════ -->
+<div id="review-modal" class="hidden">
+  <div id="review-backdrop"></div>
+  <div id="review-panel">
+    <div class="rev-header">
+      <div class="rev-header-left">
+        <span class="rev-q-badge" id="rev-badge">Q1</span>
+        <div class="rev-nav-btns">
+          <button class="rev-nav-btn" id="rev-prev">← Prev</button>
+          <button class="rev-nav-btn" id="rev-next">Next →</button>
+        </div>
+      </div>
+      <button class="close-btn" id="close-review">✕</button>
+    </div>
+    <div class="rev-body" id="rev-body"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script>
+// ═══════════ GRADE CONVERSION (official 2016 Paper 1) ═══════════
+const GRADE_TABLE = {
+  0:1.0,1:1.0,2:1.0,3:1.0,4:1.8,5:2.7,6:3.4,7:4.2,8:4.8,
+  9:5.5,10:6.1,11:6.7,12:7.3,13:7.9,14:8.6,15:9.0,
+  16:9.0,17:9.0,18:9.0,19:9.0,20:9.0
+};
+
+// ═══════════ QUESTIONS ═══════════
+const QUESTIONS = [
+{id:1,
+text:`<p>The expression $(ax + b)^3$ expands to $8x^3 - px^2 + 18x - 3\\sqrt{3}$, where $a$, $b$ and $p$ are real numbers. What is the value of $p$?</p>`,
+opts:{A:'$-12\\sqrt{3}$',B:'$-6\\sqrt{3}$',C:'$-4\\sqrt{3}$',D:'$-\\sqrt{3}$',E:'$\\sqrt{3}$',F:'$4\\sqrt{3}$',G:'$6\\sqrt{3}$',H:'$12\\sqrt{3}$'},
+ans:'H',
+sol:`<p>Expand $(ax+b)^3 = a^3x^3 + 3a^2bx^2 + 3ab^2x + b^3$ and compare with $8x^3-px^2+18x-3\\sqrt{3}$.</p>
+<p>From the constant term: $b^3 = -3\\sqrt{3} = -(\\sqrt{3})^3$, so $b = -\\sqrt{3}$.</p>
+<p>From the $x$ coefficient: $3ab^2 = 18 \\Rightarrow 3a(3)=18 \\Rightarrow a=2$.</p>
+<p>From the $x^2$ coefficient: $3a^2b = -p \\Rightarrow 3(4)(-\\sqrt{3}) = -p \\Rightarrow p = 12\\sqrt{3}$.</p>
+<p><strong>Answer: H</strong></p>`},
+
+{id:2,
+text:`<p>The polynomial $3x^3 + 13x^2 + 8x + a$, where $a$ is an integer, has $(x + 2)$ as a factor. Which of the following is the fully factorised form?</p>`,
+opts:{A:'$(x+2)(x-1)(3x-2)$',B:'$(x+2)(x+1)(3x-2)$',C:'$(x+2)(x+1)(3x+2)$',D:'$(x+2)(x-3)(3x+2)$',E:'$(x+2)(x+3)(3x-2)$',F:'$(x+2)(x+3)(3x+2)$'},
+ans:'E',
+sol:`<p>By the factor theorem $f(-2)=0$: $-24+52-16+a=0 \\Rightarrow a=-12$.</p>
+<p>Divide $3x^3+13x^2+8x-12$ by $(x+2)$: quotient is $3x^2+7x-6$.</p>
+<p>Factorise: $(3x-2)(x+3)$. Full form: $(x+2)(x+3)(3x-2)$.</p>
+<p><strong>Answer: E</strong></p>`},
+
+{id:3,
+text:`<p>The curve $y = \\dfrac{2}{x^2}$ has a normal drawn at the point where $x = 1$. This normal cuts the $x$-axis at $P$ and the $y$-axis at $Q$. What is the length $PQ$?</p>`,
+opts:{A:'$\\dfrac{3\\sqrt{5}}{2}$',B:'$\\dfrac{3\\sqrt{17}}{4}$',C:'$\\dfrac{7\\sqrt{17}}{4}$',D:'$\\dfrac{35}{4}$',E:'$\\dfrac{35\\sqrt{5}}{2}$',F:'$\\dfrac{3\\sqrt{17}}{2}$'},
+ans:'C',
+sol:`<p>At $x=1$: $y=2$. Gradient of curve $= -4$, so normal gradient $= \\tfrac{1}{4}$.</p>
+<p>Normal: $y-2=\\tfrac{1}{4}(x-1)$. At $y=0$: $x=-7$, so $P=(-7,0)$.</p>
+<p>At $x=0$: $y=\\tfrac{7}{4}$, so $Q=(0,\\tfrac{7}{4})$.</p>
+<p>$PQ = \\sqrt{49 + \\tfrac{49}{16}} = \\tfrac{7}{4}\\sqrt{17} = \\dfrac{7\\sqrt{17}}{4}$.</p>
+<p><strong>Answer: C</strong></p>`},
+
+{id:4,
+text:`<p>A sequence is defined by $a_n = (-1)^n - (-1)^{n-1} + (-1)^{n+2}$ for $n \\geq 1$. Find $\\displaystyle\\sum_{n=1}^{39} a_n$.</p>`,
+opts:{A:'$-39$',B:'$-3$',C:'$-1$',D:'$0$',E:'$1$',F:'$3$',G:'$39$'},
+ans:'B',
+sol:`<p>Compute: $a_1 = -1-1-1=-3$; $a_2=1+1+1=3$; pattern $-3,3,-3,3,\\ldots$</p>
+<p>Consecutive pairs sum to zero. $\\sum_{n=1}^{38}=0$ (19 pairs). The 39th term is $a_{39}=-3$.</p>
+<p><strong>Answer: B</strong></p>`},
+
+{id:5,
+text:`<p>What is the total area enclosed between the curve $y = x^2 - 1$, the $x$-axis and the lines $x = -2$ and $x = 2$?</p>`,
+opts:{A:'$\\dfrac{4}{3}$',B:'$\\dfrac{8}{3}$',C:'$4$',D:'$\\dfrac{16}{3}$',E:'$12$',F:'$16$'},
+ans:'C',
+sol:`<p>Curve crosses $x$-axis at $x=\\pm1$. Three regions, each contributing $\\tfrac{4}{3}$ (take absolute values).</p>
+<p>Total $= 3 \\times \\tfrac{4}{3} = 4$.</p>
+<p><strong>Answer: C</strong></p>`},
+
+{id:6,
+text:`<p>Three paints P, Q and R are mixed in ratio 12 : 5 : 3 by volume. P contains 30% red and Q contains 20% red. The mixture contains 25% red. What percentage of R is red?</p>`,
+opts:{A:'$25\\%$',B:'$23\\%$',C:'$13\\tfrac{1}{3}\\%$',D:'$19\\tfrac{1}{2}\\%$',E:'$9\\tfrac{3}{4}\\%$',F:'None of the above'},
+ans:'C',
+sol:`<p>$12(0.3)+5(0.2)+3x = 20(0.25) \\Rightarrow 3.6+1+3x=5 \\Rightarrow x=\\tfrac{2}{15}=13\\tfrac{1}{3}\\%$.</p>
+<p><strong>Answer: C</strong></p>`},
+
+{id:7,
+text:`<p>A sports club has 300 members: 60% are women. $\\frac{2}{5}$ of male members play cricket. Of all cricket-playing members, $\\frac{2}{3}$ are women. A member is chosen at random. What is the probability that this member is a woman who plays tennis?</p>`,
+opts:{A:'$\\dfrac{1}{5}$',B:'$\\dfrac{7}{25}$',C:'$\\dfrac{1}{3}$',D:'$\\dfrac{11}{25}$',E:'$\\dfrac{3}{5}$'},
+ans:'B',
+sol:`<p>Men=120, Women=180. Men cricket $=48$. Since men are $\\tfrac{1}{3}$ of cricketers: total cricketers$=144$, women cricketers$=96$.</p>
+<p>Women tennis $=180-96=84$. $P=\\tfrac{84}{300}=\\tfrac{7}{25}$.</p>
+<p><strong>Answer: B</strong></p>`},
+
+{id:8,
+text:`<p>Find the maximum value of $x$ in $0°\\leq x\\leq 360°$ satisfying $\\cos^2(2x)+\\sqrt{3}\\sin(2x)-\\tfrac{7}{4}=0$.</p>`,
+opts:{A:'$30°$',B:'$60°$',C:'$120°$',D:'$150°$',E:'$210°$',F:'$240°$',G:'$300°$',H:'$330°$'},
+ans:'F',
+sol:`<p>Use $\\cos^2\\theta=1-\\sin^2\\theta$: equation becomes $\\sin^2(2x)-\\sqrt{3}\\sin(2x)+\\tfrac{3}{4}=0$, i.e. $(\\sin(2x)-\\tfrac{\\sqrt{3}}{2})^2=0$.</p>
+<p>So $\\sin(2x)=\\tfrac{\\sqrt{3}}{2}$, giving $2x=60°,120°,420°,480°$, so $x=30°,60°,210°,240°$.</p>
+<p>Maximum: <strong>$x=240°$</strong>. Answer: F</p>`},
+
+{id:9,
+text:`<p>A circle has diameter endpoints $(3,3)$ and $(7,5)$. It undergoes: translation $-3$ in $x$; reflection in $x$-axis; enlargement scale factor 4 about its own centre. What is the equation of the resulting circle?</p>`,
+opts:{A:'$(x-2)^2+(y-4)^2=320$',B:'$(x-2)^2+(y+4)^2=320$',C:'$(x-2)^2+(y-4)^2=80$',D:'$(x-2)^2+(y+4)^2=80$',E:'$(x-2)^2+(y-4)^2=20$',F:'$(x-2)^2+(y+4)^2=20$'},
+ans:'D',
+sol:`<p>Centre $(5,4)$, radius $\\sqrt{5}$. After translation: $(2,4)$. After reflection: $(2,-4)$. After enlargement: radius $=4\\sqrt{5}$, centre unchanged.</p>
+<p>$(x-2)^2+(y+4)^2=80$. <strong>Answer: D</strong></p>`},
+
+{id:10,
+text:`<p>How many solutions does $x\\tan x = 1$ have in $-2\\pi \\leq x \\leq 2\\pi$?</p>`,
+opts:{A:'$0$',B:'$1$',C:'$2$',D:'$3$',E:'$4$',F:'$5$',G:'$6$'},
+ans:'E',
+sol:`<p>Rewrite as $\\tan x = 1/x$. Sketch $y=\\tan x$ and $y=1/x$ for $-2\\pi \\leq x \\leq 2\\pi$ (excluding $x=0$). Careful counting of intersections across all four relevant branches gives <strong>4 solutions</strong>.</p>
+<p><strong>Answer: E</strong></p>`},
+
+{id:11,
+text:`<p>The equation $4^{2x} + 12 = 2^{2x+3}$ has solutions $p > q$. What is $p - q$?</p>`,
+opts:{A:'$\\dfrac{3}{4}$',B:'$1$',C:'$4$',D:'$\\dfrac{\\log 3}{2\\log 2}-\\dfrac{1}{2}$',E:'$\\dfrac{\\log 3}{\\log 4}$'},
+ans:'E',
+sol:`<p>Let $y=2^{2x}$. Then $y^2-8y+12=0 \\Rightarrow y=2$ or $y=6$.</p>
+<p>$2^{2q}=2 \\Rightarrow q=\\tfrac{1}{2}$; $2^{2p}=6 \\Rightarrow p=\\tfrac{\\log 6}{2\\log 2}$.</p>
+<p>$p-q = \\tfrac{\\log 6-\\log 2}{2\\log 2} = \\dfrac{\\log 3}{\\log 4}$. <strong>Answer: E</strong></p>`},
+
+{id:12,
+text:`<p>A cylinder is inscribed in a sphere of radius 5 cm such that its volume is maximised. What is this maximum volume?</p>`,
+opts:{A:'$50\\sqrt{2}\\,\\pi$ cm³',B:'$\\dfrac{500\\pi}{3}$ cm³',C:'$\\dfrac{1000\\pi}{3}$ cm³',D:'$\\dfrac{250\\sqrt{3}}{3}\\pi$ cm³',E:'$\\dfrac{500\\sqrt{3}}{9}\\pi$ cm³',F:'$\\dfrac{1000\\sqrt{3}}{9}\\pi$ cm³'},
+ans:'E',
+sol:`<p>Half-height $h$, radius $r$ with $r^2+h^2=25$. $V=2\\pi r^2 h=2\\pi(25-h^2)h$.</p>
+<p>$dV/dh=2\\pi(25-3h^2)=0 \\Rightarrow h=5/\\sqrt{3}$, $r^2=50/3$.</p>
+<p>$V=\\tfrac{500\\pi}{3\\sqrt{3}}=\\dfrac{500\\sqrt{3}\\,\\pi}{9}$ cm³. <strong>Answer: E</strong></p>`},
+
+{id:13,
+text:`<p>How many real roots does $3x^5 - 10x^3 - 120x + 30 = 0$ have?</p>`,
+opts:{A:'$1$',B:'$2$',C:'$3$',D:'$4$',E:'$5$'},
+ans:'C',
+sol:`<p>$f'(x)=15x^4-30x^2-120=15(x^2-4)(x^2+2)=0$ at $x=\\pm2$.</p>
+<p>$f(-2)=254>0$, $f(2)=-194<0$. One root each in $(-\\infty,-2)$, $(-2,2)$, $(2,\\infty)$.</p>
+<p><strong>Answer: C — 3 real roots</strong></p>`},
+
+{id:14,
+text:`<p>Two geometric sequences $T$ and $U$ both start with first term 4. The sequence $S_n=T_n+U_n$ has first three terms $8, 3, \\frac{5}{4}$. What is $\\sum_{n=1}^{\\infty}S_n$?</p>`,
+opts:{A:'$\\dfrac{32}{5}$',B:'$\\dfrac{20}{3}$',C:'$\\dfrac{64}{5}$',D:'$\\dfrac{40}{3}$',E:'$16$',F:'$32$'},
+ans:'D',
+sol:`<p>$R+r=\\tfrac{3}{4}$, $R^2+r^2=\\tfrac{5}{16}$, giving $Rr=\\tfrac{1}{8}$. Roots of $8t^2-6t+1=0$: $t=\\tfrac{1}{4},\\tfrac{1}{2}$.</p>
+<p>$\\sum T=\\tfrac{4}{3/4}=\\tfrac{16}{3}$; $\\sum U=\\tfrac{4}{1/2}=8$. Total $=\\tfrac{16}{3}+8=\\dfrac{40}{3}$. <strong>Answer: D</strong></p>`},
+
+{id:15,
+text:`<p>Given $y=(2x+a)(x-2a)^2$, find the least possible gradient of the curve at $x=1$ as $a$ varies over all reals.</p>`,
+opts:{A:'$-\\dfrac{49}{4}$',B:'$-8$',C:'$-\\dfrac{25}{4}$',D:'$\\dfrac{7}{4}$',E:'$\\dfrac{47}{16}$'},
+ans:'C',
+sol:`<p>Expand: $\\tfrac{dy}{dx}=6x^2-14ax+4a^2$. At $x=1$: $g(a)=4a^2-14a+6$.</p>
+<p>Complete square: $4(a-\\tfrac{7}{4})^2-\\tfrac{25}{4}$. Minimum $=-\\dfrac{25}{4}$. <strong>Answer: C</strong></p>`},
+
+{id:16,
+text:`<p>Solve simultaneously:<br>$\\log_{10}2+\\log_{10}(y-1)=2\\log_{10}x$<br>$\\log_{10}(y+3-3x)=0$</p><p>Find the possible values of $y$.</p>`,
+opts:{A:'$\\dfrac{5}{2}\\pm\\dfrac{3\\sqrt{5}}{2}$',B:'$3\\pm\\sqrt{3}$',C:'$7\\pm 3\\sqrt{3}$',D:'$y=3$ or $y=9$',E:'$y=1$ or $y=13$'},
+ans:'C',
+sol:`<p>Eq 1: $2(y-1)=x^2$. Eq 2: $y+3-3x=1 \\Rightarrow y=3x-2$, so $x=\\tfrac{y+2}{3}$.</p>
+<p>$(y+2)^2/9=2y-2 \\Rightarrow y^2-14y+22=0 \\Rightarrow y=7\\pm3\\sqrt{3}$. <strong>Answer: C</strong></p>`},
+
+{id:17,
+text:`<p>For $0<x<\\pi$, find the values of $x$ for which $y=(1+2\\cos x)\\cos 2x$ is negative.</p>`,
+opts:{A:'$0<x<\\tfrac{\\pi}{4}$ and $\\tfrac{2\\pi}{3}<x<\\tfrac{3\\pi}{4}$',B:'$0<x<\\tfrac{\\pi}{4}$ and $\\tfrac{3\\pi}{4}<x<\\pi$',C:'$0<x<\\tfrac{2\\pi}{3}$ and $\\tfrac{3\\pi}{4}<x<\\pi$',D:'$\\tfrac{\\pi}{4}<x<\\tfrac{2\\pi}{3}$ and $\\tfrac{3\\pi}{4}<x<\\pi$',E:'$\\tfrac{\\pi}{4}<x<\\tfrac{2\\pi}{3}$',F:'$\\tfrac{\\pi}{4}<x<\\tfrac{3\\pi}{4}$'},
+ans:'D',
+sol:`<p>Zeros: $1+2\\cos x=0$ at $x=\\tfrac{2\\pi}{3}$; $\\cos 2x=0$ at $x=\\tfrac{\\pi}{4},\\tfrac{3\\pi}{4}$.</p>
+<p>Sign analysis: $y<0$ when exactly one factor is negative. This gives $\\tfrac{\\pi}{4}<x<\\tfrac{2\\pi}{3}$ and $\\tfrac{3\\pi}{4}<x<\\pi$. <strong>Answer: D</strong></p>`},
+
+{id:18,
+text:`<p>For $x\\neq 0$, find the values of $x$ for which $f(x)=\\dfrac{1-x}{x^{2/3}}$ is increasing.</p>`,
+opts:{A:'$x\\leq -2$, $x>0$',B:'$-2\\leq x<0$',C:'$x\\leq 1$, $x\\neq 0$',D:'$x\\geq 1$',E:'$-2\\leq x\\leq 1$, $x\\neq 0$',F:'$x\\leq -2$, $x\\geq 1$'},
+ans:'A',
+sol:`<p>$f(x)=x^{-2/3}-x^{1/3}$, so $f'(x)=-\\tfrac{2}{3}x^{-5/3}-\\tfrac{1}{3}x^{-2/3}=-\\tfrac{x^{-5/3}}{3}(2+x)$.</p>
+<p>Zero at $x=-2$. Sign of $f'$: when $x>0$, $x^{-5/3}>0$ and $(2+x)>0$, so $f'<0$. When $x<-2$, $x^{-5/3}<0$ and $(2+x)<0$, so $f'>0$. When $-2<x<0$, $x^{-5/3}<0$ and $(2+x)>0$, so $f'<0$.</p>
+<p>Therefore $f$ is increasing for $x\\leq -2$ and $x>0$. <strong>Answer: A</strong></p>`},
+
+{id:19,
+text:`<p>The coefficient of $x^3$ in $(1+2x+3x^2)^6$ equals twice the coefficient of $x^4$ in $(1-ax^2)^5$. Find all possible values of $a$.</p>`,
+opts:{A:'$\\pm 2\\sqrt{2}$',B:'$\\pm\\sqrt{17}$',C:'$\\pm\\sqrt{34}$',D:'$\\pm 2\\sqrt{17}$',E:'No real values'},
+ans:'B',
+sol:`<p><strong>Coeff of $x^3$ in $(1+2x+3x^2)^6$:</strong> Using $(1+u)^6$ where $u=2x+3x^2$: contributions are $\\binom{6}{1}(3x^2)(2x)+\\binom{6}{3}(2x)^3 = 6\\cdot6+20\\cdot8=36+160=340$. Wait — recount: $\\binom{6}{2}(2x)^2(3x^2)=15\\cdot4\\cdot3=180$ and $\\binom{6}{3}(2x)^3=20\\cdot8=160$, total $=340$.</p>
+<p><strong>Coeff of $x^4$ in $(1-ax^2)^5$:</strong> $\\binom{5}{2}a^2=10a^2$.</p>
+<p>$340=20a^2 \\Rightarrow a^2=17 \\Rightarrow a=\\pm\\sqrt{17}$. <strong>Answer: B</strong></p>`},
+
+{id:20,
+text:`<p>A pyramid $OPQRS$ has square base $PQRS$ and apex $O$. All edges are 20 m. Find the length of the shortest path along the surface from vertex $P$ to the midpoint of edge $OR$.</p>`,
+opts:{A:'$10\\sqrt{5-2\\sqrt{3}}$ m',B:'$10\\sqrt{3}$ m',C:'$10\\sqrt{5}$ m',D:'$10\\sqrt{7}$ m',E:'$10\\sqrt{5+2\\sqrt{3}}$ m'},
+ans:'D',
+sol:`<p>Let $T$ be the midpoint of $OR$. Unfold the two candidate routes:</p>
+<p><strong>Route via faces $OPS$ then $ORS$:</strong> After unfolding, $P$ is $10\\sqrt{3}$ from $OS$ on one side, $T$ is $5\\sqrt{3}$ from $OS$ on the other and 5 m above the base-edge. Straight-line distance $PT=\\sqrt{(15\\sqrt{3})^2+5^2}=\\sqrt{700}=10\\sqrt{7}$ m.</p>
+<p><strong>Route via base face then $ORS$</strong> gives a longer path.</p>
+<p><strong>Answer: D — $10\\sqrt{7}$ m</strong></p>`}
+];
+
+// ═══════════ STATE ═══════════
+const S = {
+  name:'', current:0, answers:{}, flagged:new Set(),
+  timeLeft:75*60, timerInterval:null, started:false, submitted:false,
+  warnShown:false, reviewQ:0
+};
+
+// ═══════════ MATH RENDERING ═══════════
+function renderMath(el){
+  if(typeof renderMathInElement==='function'){
+    renderMathInElement(el,{
+      delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+      throwOnError:false
+    });
+  }
+}
+
+// ═══════════ TIMER ═══════════
+function fmtTime(s){
+  const m=Math.floor(s/60), sec=s%60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+function startTimer(){
+  const timerEl=document.getElementById('timer');
+  S.timerInterval=setInterval(()=>{
+    S.timeLeft--;
+    timerEl.textContent=fmtTime(S.timeLeft);
+    if(S.timeLeft<=300) timerEl.className='danger';
+    else if(S.timeLeft<=600) timerEl.className='warn';
+    else timerEl.className='';
+    if(S.timeLeft===600 && !S.warnShown){
+      S.warnShown=true;
+      document.getElementById('warn-overlay').classList.remove('hidden');
+    }
+    if(S.timeLeft<=0){ clearInterval(S.timerInterval); forcedSubmit(); }
+  },1000);
+}
+
+function forcedSubmit(){
+  S.submitted=true;
+  document.getElementById('exam-screen').classList.add('hidden');
+  showResults(true);
+}
+
+// ═══════════ DOTS ═══════════
+function renderDots(){
+  const bar=document.getElementById('q-dots-bar');
+  bar.innerHTML='';
+  QUESTIONS.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='q-dot'+(S.answers[i]!==undefined?' answered':'')+(i===S.current?' current':'')+(S.flagged.has(i)?' flagged':'');
+    d.textContent=i+1;
+    d.onclick=()=>goTo(i);
+    bar.appendChild(d);
+  });
+}
+
+// ═══════════ RENDER QUESTION ═══════════
+function renderQuestion(idx){
+  const q=QUESTIONS[idx];
+  document.getElementById('q-counter').textContent=`Question ${idx+1} of ${QUESTIONS.length}`;
+  document.getElementById('q-badge').innerHTML=`Question ${String(idx+1).padStart(2,'0')}${S.flagged.has(idx)?' &nbsp;⚑':''}`;
+  document.getElementById('q-text').innerHTML=q.text;
+  document.getElementById('progress-fill').style.width=`${((idx+1)/QUESTIONS.length)*100}%`;
+  document.getElementById('prev-btn').disabled=idx===0;
+  document.getElementById('next-btn').disabled=idx===QUESTIONS.length-1;
+  const fb=document.getElementById('flag-btn');
+  fb.textContent=S.flagged.has(idx)?'⚑ Flagged':'⚑ Flag';
+  fb.className='flag-btn'+(S.flagged.has(idx)?' flagged':'');
+  const letters=Object.keys(q.opts);
+  const grid=document.getElementById('options-grid');
+  grid.innerHTML='';
+  letters.forEach(letter=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn'+(S.answers[idx]===letter?' selected':'');
+    btn.innerHTML=`<span class="opt-letter">${letter}</span><span class="opt-text">${q.opts[letter]}</span>`;
+    btn.onclick=()=>selectAnswer(idx,letter);
+    grid.appendChild(btn);
+  });
+  renderDots();
+  renderMath(document.getElementById('q-card'));
+  renderMath(grid);
+}
+
+function selectAnswer(idx,letter){
+  S.answers[idx]=letter;
+  document.querySelectorAll('.opt-btn').forEach(btn=>{
+    btn.className='opt-btn'+(btn.querySelector('.opt-letter').textContent===letter?' selected':'');
+  });
+  renderDots();
+}
+
+function goTo(idx){ S.current=idx; renderQuestion(idx); }
+
+// ═══════════ SUBMIT ═══════════
+function submitPaper(){
+  if(S.submitted) return;
+  const un=QUESTIONS.filter((_,i)=>S.answers[i]===undefined).length;
+  if(un>0 && !confirm(`You have ${un} unanswered question${un>1?'s':''}. Submit the paper?`)) return;
+  clearInterval(S.timerInterval);
+  S.submitted=true;
+  document.getElementById('exam-screen').classList.add('hidden');
+  showResults(false);
+}
+
+// ═══════════ RESULTS ═══════════
+function showResults(forced){
+  document.getElementById('results-screen').classList.remove('hidden');
+  let correct=0, wrong=0, skipped=0;
+  QUESTIONS.forEach((q,i)=>{
+    if(S.answers[i]===undefined) skipped++;
+    else if(S.answers[i]===q.ans) correct++;
+    else wrong++;
+  });
+  const grade=GRADE_TABLE[correct];
+  document.getElementById('results-heading').innerHTML=`${S.name ? S.name+"'s " : 'Your '}<em>Results</em>`;
+  document.getElementById('score-raw').textContent=correct;
+  document.getElementById('score-grade').textContent=grade.toFixed(1);
+  document.getElementById('score-breakdown').innerHTML=`<span style="color:var(--green)">${correct}✓</span> / <span style="color:var(--red)">${wrong}✗</span> / <span style="color:var(--amber)">${skipped}–</span>`;
+  const pt=document.getElementById('perf-tag');
+  if(grade>=7.5){pt.textContent='Excellent';pt.className='perf-tag perf-excellent';}
+  else if(grade>=6.0){pt.textContent='Good';pt.className='perf-tag perf-good';}
+  else if(grade>=4.5){pt.textContent='Average';pt.className='perf-tag perf-avg';}
+  else{pt.textContent='Below average';pt.className='perf-tag perf-below';}
+  // Build email report
+  const wrong_qs = QUESTIONS.filter((q,i)=>S.answers[i]!==undefined && S.answers[i]!==q.ans).map(q=>`Q${q.id}`).join(', ')||'None';
+  const skipped_qs = QUESTIONS.filter((_,i)=>S.answers[i]===undefined).map((_,i)=>`Q${i+1}`).join(', ')||'None';
+  const subject=encodeURIComponent(`TMUA Simulator Result — ${S.name||'Candidate'} — 2016 Paper 1`);
+  const body=encodeURIComponent(
+`TMUA 2016 Paper 1 — Simulation Result
+=======================================
+Candidate:    ${S.name||'(not provided)'}
+Date:         ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}
+Time:         ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}
+
+SCORE
+Raw Score:    ${correct} / 20
+TMUA Grade:   ${grade.toFixed(1)}  (scale 1.0–9.0)
+Correct:      ${correct}
+Incorrect:    ${wrong}
+Skipped:      ${skipped}
+
+DETAIL
+Questions answered incorrectly: ${wrong_qs}
+Questions skipped:               ${skipped_qs}
+
+FULL ANSWER LOG
+${QUESTIONS.map((q,i)=>{
+  const ua=S.answers[i]||'–';
+  const outcome=S.answers[i]===undefined?'SKIPPED':(S.answers[i]===q.ans?'CORRECT':'WRONG');
+  return `Q${q.id}: Your answer: ${ua}  Correct: ${q.ans}  [${outcome}]`;
+}).join('\n')}
+
+— Sent automatically from the TMUA Simulator (Ned Broderick Tutoring)`
+  );
+  document.getElementById('email-report-link').href=`mailto:ned.broderick@btinternet.com?subject=${subject}&body=${body}`;
+  // Review grid
+  const grid=document.getElementById('rq-grid');
+  grid.innerHTML='';
+  QUESTIONS.forEach((q,i)=>{
+    const isCorrect=S.answers[i]===q.ans;
+    const isSkipped=S.answers[i]===undefined;
+    const b=document.createElement('button');
+    b.className='rq-btn '+(isSkipped?'skipped':(isCorrect?'correct':'incorrect'));
+    b.innerHTML=`<span class="rq-num">Q${i+1}</span><span class="rq-mark">${isSkipped?'—':(isCorrect?'✓':'✗')}</span>`;
+    b.onclick=()=>openReview(i);
+    grid.appendChild(b);
+  });
+}
+
+// ═══════════ REVIEW MODAL ═══════════
+function openReview(idx){
+  S.reviewQ=idx;
+  renderReview(idx);
+  document.getElementById('review-modal').classList.remove('hidden');
+}
+
+function renderReview(idx){
+  const q=QUESTIONS[idx];
+  const ua=S.answers[idx];
+  document.getElementById('rev-badge').textContent=`Question ${idx+1} of ${QUESTIONS.length}`;
+  document.getElementById('rev-prev').disabled=idx===0;
+  document.getElementById('rev-next').disabled=idx===QUESTIONS.length-1;
+  const letters=Object.keys(q.opts);
+  let statusCls='rev-status skipped', statusMsg=`Not answered — correct answer: <strong>${q.ans}</strong>`;
+  if(ua!==undefined){
+    if(ua===q.ans){statusCls='rev-status correct'; statusMsg=`✓ Correct — you selected <strong>${ua}</strong>`;}
+    else{statusCls='rev-status incorrect'; statusMsg=`✗ Incorrect — you selected <strong>${ua}</strong>, correct answer is <strong>${q.ans}</strong>`;}
+  }
+  let optsHTML=letters.map(l=>{
+    const isUser=l===ua, isCorrect=l===q.ans;
+    let cls='rev-opt', tag='';
+    if(isUser && isCorrect){cls+=' user-correct'; tag='<span class="rev-tag tag-correct">Your answer ✓</span>';}
+    else if(isUser && !isCorrect){cls+=' user-wrong'; tag='<span class="rev-tag tag-wrong">Your answer ✗</span>';}
+    else if(!isUser && isCorrect){cls+=' correct-hi'; tag='<span class="rev-tag tag-correct">Correct answer</span>';}
+    return `<div class="${cls}"><span class="rev-opt-letter">${l}</span><span class="rev-opt-text">${q.opts[l]}${tag}</span></div>`;
+  }).join('');
+  document.getElementById('rev-body').innerHTML=`
+    <div class="rev-q-text">${q.text}</div>
+    <div class="${statusCls}">${statusMsg}</div>
+    <div class="rev-options">${optsHTML}</div>
+    <div class="rev-solution"><div class="rev-sol-label">Worked Solution</div><div class="rev-sol-text">${q.sol}</div></div>`;
+  renderMath(document.getElementById('rev-body'));
+}
+
+// ═══════════ EVENT LISTENERS ═══════════
+document.getElementById('begin-btn').onclick=()=>{
+  const n=document.getElementById('candidate-name').value.trim();
+  if(!n){document.getElementById('name-error').style.display='block';return;}
+  document.getElementById('name-error').style.display='none';
+  S.name=n;
+  document.getElementById('header-name').textContent='· '+n;
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('exam-screen').classList.remove('hidden');
+  S.started=true;
+  renderQuestion(0);
+  startTimer();
+};
+document.getElementById('candidate-name').addEventListener('keydown',e=>{if(e.key==='Enter') document.getElementById('begin-btn').click();});
+document.getElementById('warn-dismiss').onclick=()=>document.getElementById('warn-overlay').classList.add('hidden');
+document.getElementById('prev-btn').onclick=()=>goTo(S.current-1);
+document.getElementById('next-btn').onclick=()=>goTo(S.current+1);
+document.getElementById('submit-btn').onclick=submitPaper;
+document.getElementById('flag-btn').onclick=()=>{
+  if(S.flagged.has(S.current)) S.flagged.delete(S.current);
+  else S.flagged.add(S.current);
+  renderQuestion(S.current);
+};
+document.getElementById('rev-prev').onclick=()=>{S.reviewQ--;renderReview(S.reviewQ);};
+document.getElementById('rev-next').onclick=()=>{S.reviewQ++;renderReview(S.reviewQ);};
+document.getElementById('close-review').onclick=()=>document.getElementById('review-modal').classList.add('hidden');
+document.getElementById('review-backdrop').onclick=()=>document.getElementById('review-modal').classList.add('hidden');
+
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('review-modal').classList.contains('hidden')){
+    if(e.key==='ArrowLeft'&&S.reviewQ>0){S.reviewQ--;renderReview(S.reviewQ);}
+    if(e.key==='ArrowRight'&&S.reviewQ<QUESTIONS.length-1){S.reviewQ++;renderReview(S.reviewQ);}
+    if(e.key==='Escape') document.getElementById('review-modal').classList.add('hidden');
+    return;
+  }
+  if(!S.started||S.submitted) return;
+  if(e.key==='ArrowLeft'&&S.current>0) goTo(S.current-1);
+  if(e.key==='ArrowRight'&&S.current<QUESTIONS.length-1) goTo(S.current+1);
+  const letters=Object.keys(QUESTIONS[S.current].opts);
+  const k=e.key.toUpperCase();
+  if(letters.includes(k)) selectAnswer(S.current,k);
+});
+</script>
+</body>
+</html>
