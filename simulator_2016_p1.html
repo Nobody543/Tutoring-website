@@ -482,48 +482,33 @@ function selectAnswer(idx,letter){
 }
 function goTo(idx){S.current=idx;renderQ(idx);}
 
+// ── JSONBIN CONFIG ──
+const JSONBIN_KEY = '$2a$10$hW8GRX8MFA05OycfFwy0eOCylRevNEYeIqqHIBNQrHfIUrmU9i2kG';
+const JSONBIN_BIN = '69e1e75a856a682189431276';
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN}`;
+
 // ── SAVE SCORE ──
-async function saveScore(correct, wrong, skipped, grade) {
-  const entry = {
-    name: S.name,
-    paper: '2016 Paper 1',
-    date: new Date().toISOString(),
-    raw: correct, total: QS.length,
-    grade: grade,
-    correct: correct, wrong: wrong, skipped: skipped,
-    timedOut: S.timedOut,
-    detail: QS.map((q, i) => ({
-      q: q.id,
-      given: S.answers[i] || null,
-      correct: q.ans,
-      result: S.answers[i] === undefined ? 'skipped'
-             : S.answers[i] === q.ans ? 'correct' : 'incorrect'
-    }))
+async function saveScore(correct,wrong,skipped,grade){
+  const entry={
+    name:S.name,paper:'2016 Paper 1',
+    date:new Date().toISOString(),
+    raw:correct,total:QS.length,grade:grade,
+    correct:correct,wrong:wrong,skipped:skipped,
+    timedOut:S.timedOut,
+    detail:QS.map((q,i)=>({q:q.id,given:S.answers[i]||null,correct:q.ans,result:S.answers[i]===undefined?'skipped':S.answers[i]===q.ans?'correct':'incorrect'}))
   };
-
-  // Always save to localStorage as backup
-  try {
-    const existing = JSON.parse(localStorage.getItem('tmua_scores') || '[]');
-    existing.push(entry);
-    localStorage.setItem('tmua_scores', JSON.stringify(existing));
-  } catch(e) {}
-
-  // POST to server
-  try {
-    const resp = await fetch('save_score.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(entry)
-    });
-    if (!resp.ok) {
-      console.error('Server save failed:', resp.status, await resp.text());
-      return false;   // ← was incorrectly returning true before
-    }
-    return true;
-  } catch(e) {
-    console.error('Could not reach save_score.php:', e.message);
-    return false;    // ← was incorrectly returning true before
-  }
+  // Always save to localStorage as instant local backup
+  try{const ex=JSON.parse(localStorage.getItem('tmua_scores')||'[]');ex.push(entry);localStorage.setItem('tmua_scores',JSON.stringify(ex));}catch(e){}
+  // Save to JSONBin for permanent cross-device storage
+  try{
+    const g=await fetch(JSONBIN_URL+'/latest',{headers:{'X-Master-Key':JSONBIN_KEY,'X-Bin-Meta':'false'}});
+    if(!g.ok) throw new Error('read');
+    const cur=await g.json();
+    const arr=Array.isArray(cur)?cur:[];
+    arr.push(entry);
+    const p=await fetch(JSONBIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},body:JSON.stringify(arr)});
+    return p.ok;
+  }catch(e){console.warn('JSONBin save failed:',e);return false;}
 }
 
 // ── RESULTS ──
@@ -541,7 +526,7 @@ async function showResults(){
   notice.style.display='flex';
   notice.textContent='Saving score…';
   const saved=await saveScore(correct,wrong,skipped,grade);
-  notice.textContent=saved?'✓  Score recorded':'✓  Score saved locally';
+  notice.textContent=saved?'✓  Score recorded to cloud':'✓  Score saved locally (cloud unavailable)';
   const grid=document.getElementById('rq-grid');grid.innerHTML='';
   QS.forEach((q,i)=>{
     const ok=S.answers[i]===q.ans,sk=S.answers[i]===undefined;
