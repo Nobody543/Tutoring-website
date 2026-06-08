@@ -71,7 +71,23 @@
   /* PRICING STRIP */
   #pricing { padding: 5rem 4vw; border-top: 1px solid var(--border-dim); }
   .pricing-inner { max-width: 1100px; margin: 0 auto; }
-  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .pricing-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.pricing-card {
+  flex: 0 1 300px;
+}
+
+@media (max-width: 600px) {
+  .pricing-card {
+    flex: 1 1 100%;
+  }
+}
   .pricing-card { border: 1px solid var(--border); padding: 2rem 1.8rem; position: relative; background: rgba(200,169,110,0.02); }
   .pricing-card.featured { border-color: var(--gold); background: rgba(200,169,110,0.05); }
   .pricing-card.inquiry { border-style: dashed; }
